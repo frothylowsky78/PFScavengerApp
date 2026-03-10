@@ -20,12 +20,15 @@ export async function GET(request: NextRequest) {
       supabase.from('kickoff_progress').select('*').eq('team_id', teamRow.id).maybeSingle()
     ])
 
+    const routeRelation = teamRow.routes as { code: string } | { code: string }[] | null
+    const routeCode = Array.isArray(routeRelation) ? (routeRelation[0]?.code ?? null) : (routeRelation?.code ?? null)
+
     return NextResponse.json({
       team: {
         id: teamRow.id,
         code: teamRow.code,
         name: teamRow.name,
-        routeCode: (teamRow.routes as { code: string } | null)?.code ?? null,
+        routeCode,
         kickoffChallenge: teamRow.kickoff_challenge
       },
       kickoff,
