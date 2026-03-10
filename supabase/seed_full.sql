@@ -92,26 +92,7 @@ from (values
   ('F', 4, 'French Market', 'Move toward the long commercial corridor where open-air stalls and vendor rows stretch block after block. This area blends shopping, snacks, souvenirs, and constant pedestrian flow. It feels historic but active, with changing displays and a market rhythm throughout the day. You should see repeated booth-style setups instead of a single storefront destination. If the scene looks like a continuous bazaar near the Quarter edge, you are in the correct zone. Take a group photo proving you found the market checkpoint.', 'Take a group photo proving you found the market checkpoint.', 'french market', 'french market', 'QR-F-4', 29.9615, -90.0572, true, 'photo', 15, 'Checkpoint 4', 'Move toward the long commercial corridor where open-air stalls and vendor rows stretch block after block. This area blends shopping, snacks, souvenirs, and constant pedestrian flow. It feels historic but active, with changing displays and a market rhythm throughout the day. You should see repeated booth-style setups instead of a single storefront destination. If the scene looks like a continuous bazaar near the Quarter edge, you are in the correct zone. Take a group photo proving you found the market checkpoint.', 'Take a group photo proving you found the market checkpoint.', 'Solved. Final checkpoint remains.', 'French Market', 'Group photo near the French Market sign.', 'hard'),
   ('F', 5, 'Mulate''s', 'Your finish is in the river-adjacent warehouse district where the vibe shifts from tourist maze to broad avenues. Music, food, and dancing combine here for a high-energy wrap-up that feels distinctly Cajun. Teams usually arrive tired and loud, then reset for one last celebratory moment. If you are still deep in tight Quarter lanes, you have not gone far enough toward the final zone. Think larger building footprints, event-night energy, and a true end-of-route atmosphere. Record a 10-second celebration video at the final destination.', 'Record a 10-second celebration video at the final destination.', 'mulates', 'mulates', 'QR-F-5', 29.9435, -90.0703, true, 'video', 20, 'Final checkpoint', 'Your finish is in the river-adjacent warehouse district where the vibe shifts from tourist maze to broad avenues. Music, food, and dancing combine here for a high-energy wrap-up that feels distinctly Cajun. Teams usually arrive tired and loud, then reset for one last celebratory moment. If you are still deep in tight Quarter lanes, you have not gone far enough toward the final zone. Think larger building footprints, event-night energy, and a true end-of-route atmosphere. Record a 10-second celebration video at the final destination.', 'Record a 10-second celebration video at the final destination.', 'Route complete. Await host confirmation.', 'Mulate''s', 'Cajun dance video at Mulate''s.', 'medium')
 ) as v(route_code, order_index, title, clue_text, task_text, unlock_answer, answer_text, unlock_qr, latitude, longitude, enable_gps, proof_type, points, public_checkpoint_label, participant_clue_text, participant_task_text_pre_solve, participant_success_text_post_solve, internal_location_name, host_verification_task_text, difficulty_level)
-join routes r on r.code = v.route_code
-on conflict (route_id, order_index) do update
-set title = excluded.title,
-    clue_text = excluded.clue_text,
-    task_text = excluded.task_text,
-    unlock_answer = excluded.unlock_answer,
-    answer_text = excluded.answer_text,
-    unlock_qr = excluded.unlock_qr,
-    latitude = excluded.latitude,
-    longitude = excluded.longitude,
-    enable_gps = excluded.enable_gps,
-    proof_type = excluded.proof_type,
-    points = excluded.points,
-    public_checkpoint_label = excluded.public_checkpoint_label,
-    participant_clue_text = excluded.participant_clue_text,
-    participant_task_text_pre_solve = excluded.participant_task_text_pre_solve,
-    participant_success_text_post_solve = excluded.participant_success_text_post_solve,
-    internal_location_name = excluded.internal_location_name,
-    host_verification_task_text = excluded.host_verification_task_text,
-    difficulty_level = excluded.difficulty_level;
+join routes r on r.code = v.route_code;
 
 commit;
 
