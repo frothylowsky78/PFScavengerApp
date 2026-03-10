@@ -49,6 +49,11 @@ set status = excluded.status,
     completed_at = excluded.completed_at,
     updated_at = now();
 
+-- Compatibility: ensure difficulty column exists even if migration 004 wasn't applied yet
+alter table checkpoints
+  add column if not exists difficulty_level text not null default 'medium'
+  check (difficulty_level in ('medium','hard'));
+
 -- Checkpoints
 insert into checkpoints (
   route_id, order_index, title, clue_text, task_text, unlock_answer, answer_text, unlock_qr, latitude, longitude, enable_gps, proof_type, points, public_checkpoint_label, participant_clue_text, participant_task_text_pre_solve, participant_success_text_post_solve, internal_location_name, host_verification_task_text, difficulty_level
