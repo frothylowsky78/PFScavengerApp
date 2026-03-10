@@ -11,7 +11,7 @@ Production-ready, mobile-first scavenger hunt web app for a live corporate event
 ## Features
 - Participant-first mobile UI with large buttons and color-coded teams
 - Team-specific route assignment and unique kickoff challenge support (step 0 gate)
-- Hybrid checkpoint progression (unlock by QR or answer + proof upload) with distinct route checkpoint content
+- Proof-driven checkpoint progression: teams upload proof to auto-advance while host scoring can run in parallel
 - Photo/video proof uploads to Supabase Storage bucket (`hunt-proofs`)
 - GPS warmer/colder hinting on active clue
 - Host/Admin dashboard for verification queue and leaderboard
@@ -20,7 +20,7 @@ Production-ready, mobile-first scavenger hunt web app for a live corporate event
 ## Event defaults included
 - 9 teams and route assignment exactly as provided
 - 6 routes (A-F)
-- Seeded checkpoints and unlock tokens
+- Seeded route checkpoints with anti-reveal participant clues and host verification instructions
 - 75-minute game model from NOPSI Hotel to Mulate's
 
 ## Local setup
@@ -36,7 +36,8 @@ Production-ready, mobile-first scavenger hunt web app for a live corporate event
 4. Run SQL migrations in Supabase SQL editor (in order):
    - `supabase/migrations/001_init.sql`
    - `supabase/migrations/002_event_logic.sql`
-  - `supabase/migrations/003_checkpoint_content_split.sql`
+   - `supabase/migrations/003_checkpoint_content_split.sql`
+   - `supabase/migrations/004_clue_difficulty.sql`
 5. Validate anti-reveal content rules:
    ```bash
    npm run validate:anti-reveal
@@ -75,5 +76,5 @@ Production-ready, mobile-first scavenger hunt web app for a live corporate event
 - Add signed upload URLs + file size limits by role
 - Add rate limits on unlock/upload endpoints
 - Enable realtime subscription for live auto-refresh leaderboard
-- Add QR scanner integration in participant view
+- Add stronger upload abuse protections and moderation tooling
 

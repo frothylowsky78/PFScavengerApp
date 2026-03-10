@@ -44,7 +44,6 @@ export default function TeamPage() {
   const [kickoffChallenge, setKickoffChallenge] = useState('')
   const [kickoffState, setKickoffState] = useState<KickoffState | null>(null)
   const [answer, setAnswer] = useState('')
-  const [unlock, setUnlock] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [message, setMessage] = useState('')
   const [hint, setHint] = useState('')
@@ -53,8 +52,8 @@ export default function TeamPage() {
   const kickoffComplete = kickoffState?.status === 'submitted' || kickoffState?.status === 'verified'
 
   const activeIndex = useMemo(() => {
-    const verifiedCount = progress.filter((p) => p.status === 'verified').length
-    return Math.min(verifiedCount, Math.max(0, checkpoints.length - 1))
+    const unlockedCount = progress.filter((p) => p.status === 'submitted' || p.status === 'verified').length
+    return Math.min(unlockedCount, Math.max(0, checkpoints.length - 1))
   }, [progress, checkpoints.length])
 
   useEffect(() => {
@@ -84,17 +83,6 @@ export default function TeamPage() {
     const data = await res.json()
     setMessage(data.message)
     window.location.reload()
-  }
-
-  async function handleUnlock() {
-    if (!team || !activeCheckpoint) return
-    const res = await fetch('/api/unlock', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ teamCode: team.code, checkpointId: activeCheckpoint.id, unlockValue: unlock })
-    })
-    const data = await res.json()
-    setMessage(data.message)
   }
 
   function computeHint() {
@@ -188,10 +176,7 @@ export default function TeamPage() {
 
           <input className="w-full rounded-lg p-3 text-black" placeholder="Optional note for host verification" value={answer} onChange={(e) => setAnswer(e.target.value)} />
           <input type="file" accept="image/*,video/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-          <button className="btn w-full bg-emerald-500 text-black" onClick={() => handleSubmitProof(false)}>Upload proof</button>
-
-          <input className="w-full rounded-lg p-3 text-black" placeholder="Enter QR token or your solve answer" value={unlock} onChange={(e) => setUnlock(e.target.value)} />
-          <button className="btn w-full bg-indigo-500" onClick={handleUnlock}>Unlock next clue</button>
+          <button className="btn w-full bg-emerald-500 text-black" onClick={() => handleSubmitProof(false)}>Upload proof (auto-advances next clue)</button>
 
           <section className="rounded-lg border border-slate-700 p-3 space-y-2">
             <p className="text-sm font-semibold">GPS warmer/colder assist (optional)</p>

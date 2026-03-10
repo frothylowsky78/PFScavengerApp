@@ -43,5 +43,5 @@ export async function POST(request: NextRequest) {
     await supabase.from('team_progress').insert({ team_id: team.id, checkpoint_id: checkpointId, answer_text: answer || null, proof_url: proofUrl, status: 'submitted' })
   }
 
-  return NextResponse.json({ message: 'Proof uploaded. Host will verify if needed.' })
+  return NextResponse.json({ message: 'Proof uploaded. Next clue unlocked while host verification runs.' })
 }

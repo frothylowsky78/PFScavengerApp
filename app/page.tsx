@@ -17,7 +17,7 @@ export default function HomePage() {
           <li>Select <strong>Join as Team</strong> and enter your team code.</li>
           <li>Complete your team’s <strong>Kickoff Challenge (Step 0)</strong> at NOPSI and upload proof.</li>
           <li>After kickoff is complete, solve each clue and submit proof at every checkpoint.</li>
-          <li>Use <strong>QR token or answer entry</strong> to unlock the next checkpoint.</li>
+          <li>Submit proof at each checkpoint to <strong>automatically unlock the next clue</strong> (host scoring can happen in parallel).</li>
           <li>GPS hints are optional: use warmer/colder + distance/direction if your team gets stuck.</li>
           <li>Uploads can be photos or short videos, depending on the checkpoint instructions.</li>
           <li>Keep moving—host verification may happen during play, but your team should continue the route.</li>

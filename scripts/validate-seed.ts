@@ -10,6 +10,13 @@ function includesAnswer(haystack: string, answer: string) {
   return h.includes(a)
 }
 
+function sentenceCount(input: string) {
+  return input
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean).length
+}
+
 const failures: string[] = []
 
 for (const [routeCode, stops] of Object.entries(routeStops)) {
@@ -30,6 +37,15 @@ for (const [routeCode, stops] of Object.entries(routeStops)) {
 
     if (includesAnswer(stop.publicCheckpointLabel, stop.answerText)) {
       failures.push(`${key}: public_checkpoint_label reveals answer_text`)
+    }
+
+    const count = sentenceCount(stop.participantClueText)
+    if (count < 6 || count > 8) {
+      failures.push(`${key}: participant_clue_text must have 6-8 sentences (found ${count})`)
+    }
+
+    if (!stop.participantClueText.trim().endsWith(stop.participantTaskTextPreSolve.trim())) {
+      failures.push(`${key}: participant_clue_text final sentence must be the challenge instruction`)
     }
   }
 }
