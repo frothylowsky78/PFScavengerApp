@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { getSupabaseServer } from '@/lib/supabase-server'
 
 async function verify(progressId: string, approved: boolean) {
@@ -11,6 +13,17 @@ async function verify(progressId: string, approved: boolean) {
 }
 
 export default async function AdminPage() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return (
+      <main className="min-h-screen p-4 max-w-3xl mx-auto">
+        <section className="card">
+          <h1 className="text-2xl font-bold">Host Dashboard</h1>
+          <p className="mt-2 text-slate-300">Missing Supabase environment variables. Add NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel project settings.</p>
+        </section>
+      </main>
+    )
+  }
+
   const supabase = getSupabaseServer()
   const [{ data: leaderboard }, { data: submissions }] = await Promise.all([
     supabase.from('leaderboard_view').select('*').order('total_points', { ascending: false }),
