@@ -52,9 +52,17 @@ export default function TeamPage() {
   const kickoffComplete = kickoffState?.status === 'submitted' || kickoffState?.status === 'verified'
 
   const activeIndex = useMemo(() => {
-    const unlockedCount = progress.filter((p) => p.status === 'submitted' || p.status === 'verified').length
-    return Math.min(unlockedCount, Math.max(0, checkpoints.length - 1))
-  }, [progress, checkpoints.length])
+    if (checkpoints.length === 0) return 0
+
+    const progressByCheckpoint = new Map(progress.map((p) => [p.checkpoint_id, p.status]))
+    const firstBlockedIndex = checkpoints.findIndex((checkpoint) => {
+      const status = progressByCheckpoint.get(checkpoint.id)
+      return status !== 'submitted' && status !== 'verified'
+    })
+
+    if (firstBlockedIndex >= 0) return firstBlockedIndex
+    return checkpoints.length - 1
+  }, [progress, checkpoints])
 
   useEffect(() => {
     if (!team) return
@@ -133,7 +141,7 @@ export default function TeamPage() {
             const solvedName = checkpoint.solved ? ` — ${checkpoint.reveal?.internal_location_name ?? ''}` : ''
             return (
               <li key={checkpoint.id}>
-                {checkpoint.status === 'verified' ? '✅' : checkpoint.status === 'submitted' ? '🕓' : '🔒'} {label}{solvedName}
+                {checkpoint.status === 'verified' ? '✅' : checkpoint.status === 'submitted' ? '🕓' : checkpoint.status === 'rejected' ? '❌' : '🔒'} {label}{solvedName}
               </li>
             )
           })}
@@ -165,7 +173,11 @@ export default function TeamPage() {
           <p className="text-sm text-amber-200">Task: {activeCheckpoint.participant_task_text_pre_solve}</p>
           <p className="text-sm">Proof required: {activeCheckpoint.proof_type}</p>
 
-          {activeCheckpoint.status !== 'pending' ? (
+          {activeCheckpoint.status === 'rejected' ? (
+            <div className="rounded-lg border border-rose-600/40 bg-rose-950/40 p-3 text-sm text-rose-200">
+              <p>This proof was rejected by the host. Please upload a clearer proof for this checkpoint to continue.</p>
+            </div>
+          ) : activeCheckpoint.status !== 'pending' ? (
             <div className="rounded-lg border border-emerald-600/40 bg-emerald-950/40 p-3 text-sm text-emerald-200">
               <p>{activeCheckpoint.participant_success_text_post_solve || 'Checkpoint solved. Await host scoring update if needed.'}</p>
               {activeCheckpoint.reveal?.internal_location_name ? (
