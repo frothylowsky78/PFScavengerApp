@@ -21,6 +21,8 @@ export default function HomePage() {
           <li>GPS hints are optional: use warmer/colder + distance/direction if your team gets stuck.</li>
           <li>Uploads can be photos or short videos, depending on the checkpoint instructions.</li>
           <li>Keep moving—host verification may happen during play, but your team should continue the route.</li>
+          <li>Typical total walking distance is <strong>about 2.0 to 2.5 miles</strong> depending on route and team.</li>
+          <li>The final leg is often <strong>around a 1-mile walk</strong>; if your team is behind schedule, take an <strong>Uber, taxi, or pedicab</strong>.</li>
           <li>Finish at the final checkpoint and await host final reveal instructions.</li>
         </ol>
         <p className="text-xs text-slate-400">Tip: Assign roles (navigator, clue reader, photographer, uploader) so your team moves faster.</p>

@@ -123,6 +123,10 @@ export default function TeamPage() {
   const totalPoints = checkpointScore + (kickoffState?.points_awarded ?? 0)
   const elapsedMinutes = kickoffState?.completed_at ? Math.floor((Date.now() - new Date(kickoffState.completed_at).getTime()) / 60000) : 0
 
+  const lastCheckpointOrder = checkpoints.length > 0 ? checkpoints[checkpoints.length - 1].order_index : 0
+  const currentCheckpointOrder = activeCheckpoint?.order_index ?? 0
+  const showTransportPrompt = kickoffComplete && elapsedMinutes > 55 && currentCheckpointOrder >= lastCheckpointOrder && lastCheckpointOrder > 0
+
   return (
     <main className="min-h-screen p-4 max-w-md mx-auto space-y-4">
       <header className="card" style={{ borderColor: team.hex }}>
@@ -147,6 +151,13 @@ export default function TeamPage() {
           })}
         </ul>
       </section>
+
+      {showTransportPrompt ? (
+        <section className="card border border-amber-500/50 bg-amber-950/30 space-y-2">
+          <h2 className="text-lg font-semibold text-amber-300">Need a boost?</h2>
+          <p className="text-sm text-amber-100">You’re in the final stretch. If you&apos;re running behind, grab a quick Uber/Lyft or pedicab to the final stop.</p>
+        </section>
+      ) : null}
 
       {!kickoffComplete ? (
         <section className="card space-y-3">

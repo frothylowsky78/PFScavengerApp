@@ -1,6 +1,17 @@
 export const dynamic = 'force-dynamic'
 
+import { revalidatePath } from 'next/cache'
 import { getSupabaseServer } from '@/lib/supabase-server'
+
+type ReviewedProof = {
+  id: string
+  submission_type: 'kickoff' | 'checkpoint'
+  team_name: string
+  checkpoint_title: string
+  status: 'verified' | 'rejected'
+  proof_url: string | null
+  updated_at: string
+}
 
 async function verify(progressId: string, approved: boolean, submissionType: 'kickoff' | 'checkpoint') {
   'use server'
@@ -11,6 +22,8 @@ async function verify(progressId: string, approved: boolean, submissionType: 'ki
       .from('kickoff_progress')
       .update({ status: approved ? 'verified' : 'rejected', points_awarded: approved ? 10 : 0, completed_at: new Date().toISOString() })
       .eq('id', progressId)
+
+    revalidatePath('/admin')
     return
   }
 
@@ -28,6 +41,8 @@ async function verify(progressId: string, approved: boolean, submissionType: 'ki
     .from('team_progress')
     .update({ status: approved ? 'verified' : 'rejected', points_awarded: awarded, verified_at: new Date().toISOString() })
     .eq('id', progressId)
+
+  revalidatePath('/admin')
 }
 
 export default async function AdminPage() {
@@ -43,10 +58,45 @@ export default async function AdminPage() {
   }
 
   const supabase = getSupabaseServer()
-  const [{ data: leaderboard }, { data: submissions }] = await Promise.all([
+  const [{ data: leaderboard }, { data: submissions }, { data: checkpointReviewed }, { data: kickoffReviewed }] = await Promise.all([
     supabase.from('leaderboard_view').select('*').order('total_points', { ascending: false }),
-    supabase.from('pending_submissions_view').select('*').limit(100)
+    supabase.from('pending_submissions_view').select('*').limit(100),
+    supabase
+      .from('team_progress')
+      .select('id,status,proof_url,updated_at,teams(name),checkpoints(internal_location_name)')
+      .in('status', ['verified', 'rejected'])
+      .not('proof_url', 'is', null)
+      .order('updated_at', { ascending: false })
+      .limit(100),
+    supabase
+      .from('kickoff_progress')
+      .select('id,status,proof_url,updated_at,teams(name)')
+      .in('status', ['verified', 'rejected'])
+      .not('proof_url', 'is', null)
+      .order('updated_at', { ascending: false })
+      .limit(100)
   ])
+
+  const reviewedProofs: ReviewedProof[] = [
+    ...((checkpointReviewed ?? []).map((row) => ({
+      id: row.id as string,
+      submission_type: 'checkpoint' as const,
+      team_name: (row.teams as { name?: string } | null)?.name ?? 'Unknown team',
+      checkpoint_title: (row.checkpoints as { internal_location_name?: string } | null)?.internal_location_name ?? 'Checkpoint',
+      status: row.status as 'verified' | 'rejected',
+      proof_url: row.proof_url as string | null,
+      updated_at: row.updated_at as string
+    }))),
+    ...((kickoffReviewed ?? []).map((row) => ({
+      id: row.id as string,
+      submission_type: 'kickoff' as const,
+      team_name: (row.teams as { name?: string } | null)?.name ?? 'Unknown team',
+      checkpoint_title: 'Kickoff Challenge',
+      status: row.status as 'verified' | 'rejected',
+      proof_url: row.proof_url as string | null,
+      updated_at: row.updated_at as string
+    })))
+  ].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
 
   return (
     <main className="min-h-screen p-4 max-w-3xl mx-auto space-y-4">
@@ -79,6 +129,35 @@ export default async function AdminPage() {
             </div>
           </div>
         ))}
+      </section>
+
+      <section className="card space-y-3">
+        <h2 className="text-xl font-semibold">Reviewed Proof Downloads</h2>
+        <p className="text-sm text-slate-300">Download proof files that were already approved or rejected.</p>
+        {reviewedProofs.length === 0 ? (
+          <p className="text-sm text-slate-400">No reviewed proof files yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {reviewedProofs.map((proof) => (
+              <div key={`${proof.submission_type}-${proof.id}`} className="rounded-lg border border-slate-700 p-3 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{proof.team_name} · {proof.checkpoint_title}</p>
+                  <p className="text-xs text-slate-400 uppercase">{proof.submission_type} · {proof.status}</p>
+                </div>
+                {proof.proof_url ? (
+                  <a
+                    href={proof.proof_url}
+                    target="_blank"
+                    download
+                    className="btn bg-blue-600 whitespace-nowrap"
+                  >
+                    Download
+                  </a>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   )
