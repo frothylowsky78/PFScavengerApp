@@ -51,6 +51,12 @@ Production-ready, mobile-first scavenger hunt web app for a live corporate event
 4. Set build command to `npm run build` (default) and output defaults.
 5. Deploy.
 
+
+## Vercel deploy warning notes
+- NPM deprecation lines for transitive packages (e.g., `inflight`, `rimraf`, `glob`) are warnings, not immediate build failures.
+- This repo pins patched Next.js and matching eslint config to reduce security/deprecation noise in fresh deploys.
+- If warnings still appear, redeploy after clearing build cache in Vercel and ensure lockfile is regenerated from latest `package.json`.
+
 ## Supabase notes
 - The migration creates core tables and views:
   - `routes`, `teams`, `checkpoints`, `team_progress`

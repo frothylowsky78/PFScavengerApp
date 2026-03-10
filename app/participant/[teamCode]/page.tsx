@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useParams } from 'next/navigation'
 import { TEAM_META } from '@/lib/team-meta'
 
 type Checkpoint = {
@@ -20,7 +21,8 @@ type ProgressRow = {
   points_awarded: number
 }
 
-export default function TeamPage({ params }: { params: { teamCode: string } }) {
+export default function TeamPage() {
+  const params = useParams<{ teamCode: string }>()
   const team = TEAM_META.find((t) => t.code === params.teamCode)
   const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([])
   const [progress, setProgress] = useState<ProgressRow[]>([])
@@ -48,7 +50,7 @@ export default function TeamPage({ params }: { params: { teamCode: string } }) {
   const activeCheckpoint = checkpoints[activeIndex]
 
   async function handleSubmitProof() {
-    if (!activeCheckpoint) return
+    if (!team || !activeCheckpoint) return
     const formData = new FormData()
     if (file) formData.append('file', file)
     formData.append('teamCode', team.code)
@@ -61,7 +63,7 @@ export default function TeamPage({ params }: { params: { teamCode: string } }) {
   }
 
   async function handleUnlock() {
-    if (!activeCheckpoint) return
+    if (!team || !activeCheckpoint) return
     const res = await fetch('/api/unlock', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
