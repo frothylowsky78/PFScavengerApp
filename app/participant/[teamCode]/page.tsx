@@ -6,17 +6,22 @@ import { TEAM_META } from '@/lib/team-meta'
 
 type Checkpoint = {
   id: string
-  title: string
-  clue_text: string
-  task_text: string | null
-  unlock_answer: string | null
-  unlock_qr: string | null
+  order_index: number
+  public_checkpoint_label: string
+  participant_clue_text: string
+  participant_task_text_pre_solve: string
+  participant_success_text_post_solve: string
+  proof_type: 'photo' | 'video'
+  enable_gps: boolean
   latitude: number | null
   longitude: number | null
-  order_index: number
-  proof_type: 'photo' | 'video'
-  points: number
-  enable_gps: boolean
+  solved: boolean
+  status: 'pending' | 'submitted' | 'verified' | 'rejected'
+  points_awarded: number
+  reveal: {
+    internal_location_name: string | null
+    host_verification_task_text: string | null
+  } | null
 }
 
 type ProgressRow = {
@@ -94,7 +99,7 @@ export default function TeamPage() {
 
   function computeHint() {
     if (!activeCheckpoint?.enable_gps || !activeCheckpoint?.latitude || !activeCheckpoint?.longitude || !navigator.geolocation) {
-      setHint('GPS hint unavailable for this clue.')
+      setHint('GPS hint unavailable for this checkpoint.')
       return
     }
 
@@ -126,36 +131,68 @@ export default function TeamPage() {
         <p className="text-sm text-slate-300">Kickoff: {kickoffComplete ? 'Complete' : 'Not complete'} · Elapsed: {elapsedMinutes} min</p>
       </header>
 
+      <section className="card space-y-2">
+        <p className="text-xs uppercase text-slate-400">Route progress</p>
+        <ul className="space-y-1 text-sm">
+          <li>Step 0 · Kickoff {kickoffComplete ? '✅' : '⏳'}</li>
+          {checkpoints.map((checkpoint) => {
+            const defaultLabel = checkpoint.order_index === checkpoints.length ? 'Final checkpoint' : `Checkpoint ${checkpoint.order_index}`
+            const label = checkpoint.public_checkpoint_label || defaultLabel
+            const solvedName = checkpoint.solved ? ` — ${checkpoint.reveal?.internal_location_name ?? ''}` : ''
+            return (
+              <li key={checkpoint.id}>
+                {checkpoint.status === 'verified' ? '✅' : checkpoint.status === 'submitted' ? '🕓' : '🔒'} {label}{solvedName}
+              </li>
+            )
+          })}
+        </ul>
+      </section>
+
       {!kickoffComplete ? (
         <section className="card space-y-3">
           <p className="text-xs uppercase text-slate-400">Step 0 · NOPSI Kickoff Challenge</p>
           <h2 className="text-xl font-semibold">Complete this before route clues unlock</h2>
           <p>{kickoffChallenge}</p>
+          <p className="text-sm text-slate-300">Upload kickoff proof (photo or short video).</p>
           <input type="file" accept="image/*,video/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
           <button className="btn w-full bg-emerald-500 text-black" onClick={() => handleSubmitProof(true)}>Upload kickoff proof</button>
           {message ? <p className="font-semibold">{message}</p> : null}
         </section>
       ) : activeCheckpoint ? (
         <section className="card space-y-3">
-          <p className="text-xs uppercase text-slate-400">Checkpoint {activeCheckpoint.order_index} · Route {team.routeCode}</p>
-          <h2 className="text-xl font-semibold">{activeCheckpoint.title}</h2>
-          <p className="text-slate-200">{activeCheckpoint.clue_text}</p>
-          <p className="text-sm text-amber-200">Task: {activeCheckpoint.task_text}</p>
+          <p className="text-xs uppercase text-slate-400">{activeCheckpoint.public_checkpoint_label} · Route {team.routeCode}</p>
+          <h2 className="text-xl font-semibold">Solve the clue to find your next stop</h2>
+          <p className="text-slate-200">{activeCheckpoint.participant_clue_text}</p>
+          <p className="text-sm text-amber-200">Task: {activeCheckpoint.participant_task_text_pre_solve}</p>
           <p className="text-sm">Proof required: {activeCheckpoint.proof_type}</p>
 
-          <input className="w-full rounded-lg p-3 text-black" placeholder="Optional answer" value={answer} onChange={(e) => setAnswer(e.target.value)} />
+          {activeCheckpoint.status !== 'pending' ? (
+            <div className="rounded-lg border border-emerald-600/40 bg-emerald-950/40 p-3 text-sm text-emerald-200">
+              <p>{activeCheckpoint.participant_success_text_post_solve || 'Checkpoint solved. Await host scoring update if needed.'}</p>
+              {activeCheckpoint.reveal?.internal_location_name ? (
+                <p className="mt-1 text-emerald-100">Solved location: {activeCheckpoint.reveal.internal_location_name}</p>
+              ) : null}
+            </div>
+          ) : null}
+
+          <input className="w-full rounded-lg p-3 text-black" placeholder="Optional note for host verification" value={answer} onChange={(e) => setAnswer(e.target.value)} />
           <input type="file" accept="image/*,video/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
           <button className="btn w-full bg-emerald-500 text-black" onClick={() => handleSubmitProof(false)}>Upload proof</button>
 
-          <input className="w-full rounded-lg p-3 text-black" placeholder="QR code or unlock answer" value={unlock} onChange={(e) => setUnlock(e.target.value)} />
+          <input className="w-full rounded-lg p-3 text-black" placeholder="Enter QR token or your solve answer" value={unlock} onChange={(e) => setUnlock(e.target.value)} />
           <button className="btn w-full bg-indigo-500" onClick={handleUnlock}>Unlock next clue</button>
-          <button className="btn w-full bg-amber-400 text-black" onClick={computeHint}>GPS warmer/colder hint</button>
-          {hint ? <p>{hint}</p> : null}
-          {distanceFeet ? <p className="text-sm text-slate-300">Approx distance: {distanceFeet} feet</p> : null}
+
+          <section className="rounded-lg border border-slate-700 p-3 space-y-2">
+            <p className="text-sm font-semibold">GPS warmer/colder assist (optional)</p>
+            <button className="btn w-full bg-amber-400 text-black" onClick={computeHint}>Refresh GPS hint</button>
+            {hint ? <p>{hint}</p> : null}
+            {distanceFeet ? <p className="text-sm text-slate-300">Approx distance: {distanceFeet} feet</p> : null}
+          </section>
+
           {message ? <p className="font-semibold">{message}</p> : null}
         </section>
       ) : (
-        <section className="card">No active checkpoint. Finish reveal is waiting at your final destination.</section>
+        <section className="card">No active checkpoint. Final reveal mode is waiting for host confirmation.</section>
       )}
     </main>
   )

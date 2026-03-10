@@ -70,7 +70,8 @@ export default async function AdminPage() {
         {submissions?.map((s) => (
           <div key={s.progress_id} className="rounded-lg border border-slate-700 p-3 space-y-2">
             <p><strong>{s.team_name}</strong> · {s.checkpoint_title} <span className="text-xs uppercase text-slate-400">({s.submission_type})</span></p>
-            <p className="text-sm">Details: {s.answer_text || '—'}</p>
+            <p className="text-sm">Submitted note: {s.answer_text || '—'}</p>
+            <p className="text-sm text-amber-200">Host check: {s.host_verification_task_text || 'Verify against checkpoint criteria.'}</p>
             <a href={s.proof_url || '#'} target="_blank" className="text-blue-300">Open proof</a>
             <div className="flex gap-2">
               <form action={verify.bind(null, s.progress_id, true, s.submission_type)}><button className="btn bg-emerald-600">Approve</button></form>

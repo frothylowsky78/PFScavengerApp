@@ -1,11 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { TEAM_META } from '../lib/team-meta'
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+export const routeCodes = ['A', 'B', 'C', 'D', 'E', 'F']
 
-const routeCodes = ['A', 'B', 'C', 'D', 'E', 'F']
-
-const kickoffChallenges: Record<string, string> = {
+export const kickoffChallenges: Record<string, string> = {
   pink: 'Find the vintage NOPSI generator sculpture in the lobby and take a team selfie.',
   red: 'Ask a hotel staff member for their favorite New Orleans restaurant and record the answer.',
   yellow: 'Take a photo of something gold or brass inside NOPSI.',
@@ -17,63 +15,67 @@ const kickoffChallenges: Record<string, string> = {
   blue: 'Find something blue in the lobby or a street sign outside and photograph it.'
 }
 
-type SeedStop = {
-  title: string
-  answer: string
-  clue: string
-  task: string
+export type SeedStop = {
+  publicCheckpointLabel: string
+  internalLocationName: string
+  answerText: string
+  participantClueText: string
+  participantTaskTextPreSolve: string
+  participantSuccessTextPostSolve: string
+  hostVerificationTaskText: string
   proofType: 'photo' | 'video'
   points: number
   lat: number
   lng: number
 }
 
-const routeStops: Record<string, SeedStop[]> = {
+export const routeStops: Record<string, SeedStop[]> = {
   A: [
-    { title: 'Lafayette Square', answer: 'lafayette square', clue: 'Your hunt begins where oak trees shade the suits. Across from the building where city leaders once addressed the crowd. Find the park named for a French hero of war.', task: 'Take a team photo pointing dramatically at the statue in the center.', proofType: 'photo', points: 10, lat: 29.9496, lng: -90.0704 },
-    { title: 'Bourbon Street Sign', answer: 'bourbon street', clue: 'Where balconies lean and the music is loud, this street is famous for drawing a crowd. Find the sign with a name known worldwide.', task: 'Take a team photo with a Bourbon Street sign.', proofType: 'photo', points: 10, lat: 29.9581, lng: -90.0656 },
-    { title: 'Jackson Square', answer: 'jackson square', clue: 'Artists line the fence with paintings for sale. A general on horseback tells a historic tale. The cathedral towers behind the scene.', task: 'Take a team photo with Andrew Jackson in the background.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623 },
-    { title: 'Café du Monde', answer: 'cafe du monde', clue: 'Powdered sugar floats like snow in July. Find the café where beignets reign supreme.', task: 'Show a powdered sugar mustache in a team photo.', proofType: 'photo', points: 15, lat: 29.9577, lng: -90.0621 },
-    { title: "Mulate's", answer: 'mulates', clue: "The hunt ends where Cajun music plays and dancing fills the room. Head toward the river and find the Zydeco finish line.", task: "Record a 10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703 }
+    { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Lafayette Square', answerText: 'lafayette square', participantClueText: 'Begin where downtown opens up beneath old oaks and a watchful monument anchors the scene. This green square honors a French ally from the Revolutionary era.', participantTaskTextPreSolve: 'Take a team photo that clearly shows your group at the correct landmark area.', participantSuccessTextPostSolve: 'Nice solve. Confirm your proof upload and keep moving.', hostVerificationTaskText: 'Team photo pointing dramatically at the central statue.', proofType: 'photo', points: 10, lat: 29.9496, lng: -90.0704 },
+    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: 'Bourbon Street Sign', answerText: 'bourbon street', participantClueText: 'Balconies, music, and nonstop energy define this world-famous corridor. Find the Quarter’s loudest legend.', participantTaskTextPreSolve: 'Take a team photo that clearly proves you reached the correct street checkpoint.', participantSuccessTextPostSolve: 'Checkpoint solved. Keep your pace and unlock the next clue.', hostVerificationTaskText: 'Team photo with a Bourbon Street sign.', proofType: 'photo', points: 10, lat: 29.9581, lng: -90.0656 },
+    { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'Jackson Square', answerText: 'jackson square', participantClueText: 'Find the historic gathering place where artists line iron fencing and a rider watches over the scene with cathedral towers nearby.', participantTaskTextPreSolve: 'Take a team photo featuring the most recognizable historic element at this location.', participantSuccessTextPostSolve: 'Great work. You solved this checkpoint.', hostVerificationTaskText: 'Team photo with Andrew Jackson visible.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623 },
+    { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: 'Café du Monde', answerText: 'cafe du monde', participantClueText: 'Follow the scent of coffee and powdered sugar to one of the city’s most beloved food traditions.', participantTaskTextPreSolve: 'Take a photo proving your team completed the signature food-themed challenge at this stop.', participantSuccessTextPostSolve: 'Solved. Upload confirmed—time for the final leg.', hostVerificationTaskText: 'Team photo showing a powdered sugar mustache.', proofType: 'photo', points: 15, lat: 29.9577, lng: -90.0621 },
+    { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantClueText: 'Finish near the riverfront where Cajun music, food, and dancing bring the route to a close.', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantSuccessTextPostSolve: 'Final checkpoint solved. Await host wrap-up.', hostVerificationTaskText: "10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703 }
   ],
   B: [
-    { title: 'Canal Street Streetcar', answer: 'canal street', clue: 'Tracks run through the city where streetcars glide. Find the moving green machine downtown.', task: 'Take a photo of a moving streetcar.', proofType: 'photo', points: 10, lat: 29.9537, lng: -90.0716 },
-    { title: 'Royal Street', answer: 'royal street', clue: "Not Bourbon's chaos but elegance instead, where artists and antiques fill the street ahead.", task: 'Capture a short video of a teammate dancing near a street musician.', proofType: 'video', points: 15, lat: 29.9589, lng: -90.0645 },
-    { title: 'Jackson Square', answer: 'jackson square', clue: 'Find the square where cathedral spires rise above artists and iron fences.', task: 'Take a team photo in front of St. Louis Cathedral or the Jackson statue.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623 },
-    { title: "Pat O'Brien's Flaming Fountain", answer: 'pat obrien', clue: 'In a courtyard hidden behind a famous bar, a fountain burns like a tiny star.', task: "Pose like you're in the middle of a hurricane around the fountain.", proofType: 'photo', points: 15, lat: 29.9579, lng: -90.0653 },
-    { title: "Mulate's", answer: 'mulates', clue: 'Now follow the river side energy to a Cajun celebration. Your finish line has food, music, and dancing.', task: "Record a 10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703 }
+    { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Canal Street Streetcar', answerText: 'canal street', participantClueText: 'Where downtown meets the Quarter, tracks still shape the street and transit remains part of the identity. Find the route defined by rails.', participantTaskTextPreSolve: 'Take a photo or action shot that proves you found the transit-themed checkpoint.', participantSuccessTextPostSolve: 'Solved. Keep moving to checkpoint 2.', hostVerificationTaskText: 'Photo of a moving streetcar on Canal Street.', proofType: 'photo', points: 10, lat: 29.9537, lng: -90.0716 },
+    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: 'Royal Street', answerText: 'royal street', participantClueText: 'Where nearby streets get louder, this one leans refined—galleries, buskers, antiques, and elegant balconies set the tone.', participantTaskTextPreSolve: 'Capture a short video showing your team interacting with the artistic or musical energy of the location.', participantSuccessTextPostSolve: 'Checkpoint solved. Unlock your next clue.', hostVerificationTaskText: 'Short video of a teammate dancing near a street musician.', proofType: 'video', points: 15, lat: 29.9589, lng: -90.0645 },
+    { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'Jackson Square', answerText: 'jackson square', participantClueText: 'Cathedral spires, painters, and iron fencing mark one of the city’s best-known public spaces.', participantTaskTextPreSolve: 'Take a team photo featuring the most recognizable landmark element in the area.', participantSuccessTextPostSolve: 'Solved. Team is on track.', hostVerificationTaskText: 'Team photo with St. Louis Cathedral or Andrew Jackson statue visible.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623 },
+    { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: "Pat O'Brien's Flaming Fountain", answerText: 'pat obrien', participantClueText: 'Hidden behind a famous bar is a courtyard feature where flame and water meet.', participantTaskTextPreSolve: 'Take a dramatic team photo proving you found the correct hidden courtyard feature.', participantSuccessTextPostSolve: 'Solved. Final checkpoint ahead.', hostVerificationTaskText: 'Hurricane-style team pose around the flaming fountain.', proofType: 'photo', points: 15, lat: 29.9579, lng: -90.0653 },
+    { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantClueText: 'Follow the energy toward a Cajun finish filled with food, music, and dancing.', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantSuccessTextPostSolve: 'Route complete. Await host confirmation.', hostVerificationTaskText: "10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703 }
   ],
   C: [
-    { title: 'Gallier Hall', answer: 'gallier hall', clue: 'White columns and civic history mark this grand old building on St. Charles.', task: 'Count the columns and take a team photo.', proofType: 'photo', points: 10, lat: 29.9516, lng: -90.0702 },
-    { title: 'Bourbon Street Sign', answer: 'bourbon street', clue: "Music, balconies, and bright energy make this the city's most notorious street.", task: 'Take a group photo with a Bourbon Street sign.', proofType: 'photo', points: 10, lat: 29.9581, lng: -90.0656 },
-    { title: 'Café du Monde', answer: 'cafe du monde', clue: 'Find the place where coffee and powdered sugar rule the morning and the night.', task: 'Show a beignet or powdered sugar evidence in your photo.', proofType: 'photo', points: 15, lat: 29.9577, lng: -90.0621 },
-    { title: 'French Market', answer: 'french market', clue: 'Stalls, souvenirs, and local flavor stretch along the edge of the Quarter. Find the market that has served the city for generations.', task: 'Take a team photo with the French Market sign or vendor stalls.', proofType: 'photo', points: 15, lat: 29.9615, lng: -90.0572 },
-    { title: "Mulate's", answer: 'mulates', clue: 'Leave the Quarter and head for the Cajun finish. Music and dinner await at the final stop.', task: "Record a 10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703 }
+    { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Gallier Hall', answerText: 'gallier hall', participantClueText: 'White columns and civic grandeur mark this landmark along St. Charles. Find the ceremonial old heart of city government.', participantTaskTextPreSolve: 'Take a team photo featuring the most recognizable architectural detail at this civic landmark.', participantSuccessTextPostSolve: 'Great solve. Keep going.', hostVerificationTaskText: 'Team photo at Gallier Hall with column count visible or noted.', proofType: 'photo', points: 10, lat: 29.9516, lng: -90.0702 },
+    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: 'Bourbon Street Sign', answerText: 'bourbon street', participantClueText: 'Neon, balconies, and nonstop energy define this famous stretch. Find the Quarter’s best-known nightlife corridor.', participantTaskTextPreSolve: 'Take a group photo that clearly proves your team reached the correct street checkpoint.', participantSuccessTextPostSolve: 'Solved. Next clue unlocked soon.', hostVerificationTaskText: 'Group photo with a Bourbon Street sign.', proofType: 'photo', points: 10, lat: 29.9581, lng: -90.0656 },
+    { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'Café du Monde', answerText: 'cafe du monde', participantClueText: 'Coffee and sugar have been drawing crowds here for generations. Find the city’s most iconic sweet stop.', participantTaskTextPreSolve: 'Take a photo proving your team completed the signature treat challenge at this stop.', participantSuccessTextPostSolve: 'Solved. Keep your momentum.', hostVerificationTaskText: 'Photo showing beignet or powdered sugar evidence.', proofType: 'photo', points: 15, lat: 29.9577, lng: -90.0621 },
+    { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: 'French Market', answerText: 'french market', participantClueText: 'Stalls, shopping, and local flavor stretch along one of the Quarter’s oldest commercial corridors.', participantTaskTextPreSolve: 'Take a team photo that clearly proves you found the market checkpoint.', participantSuccessTextPostSolve: 'Checkpoint solved. Final stop remains.', hostVerificationTaskText: 'Team photo with French Market sign or vendor stalls.', proofType: 'photo', points: 15, lat: 29.9615, lng: -90.0572 },
+    { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantClueText: 'Leave the Quarter and head for a Cajun finish with music, food, and a final dance.', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantSuccessTextPostSolve: 'Route complete. Await host confirmation.', hostVerificationTaskText: "10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703 }
   ],
   D: [
-    { title: 'Canal Street', answer: 'canal street', clue: 'Begin where downtown widens and the Quarter starts to hum. Look for rails, storefronts, and constant motion.', task: 'Take a team shot with Canal Street in the background.', proofType: 'photo', points: 10, lat: 29.9537, lng: -90.0716 },
-    { title: "Pat O'Brien's Flaming Fountain", answer: 'pat obrien', clue: 'A hidden courtyard, a famous drink, and a flame that dances above water.', task: 'Create your best storm-blown group pose.', proofType: 'photo', points: 15, lat: 29.9579, lng: -90.0653 },
-    { title: 'Royal Street', answer: 'royal street', clue: 'Find the elegant street where buskers and galleries replace the Bourbon roar.', task: 'Film 5 seconds of a teammate giving their best jazz hands.', proofType: 'video', points: 15, lat: 29.9589, lng: -90.0645 },
-    { title: 'Jackson Square', answer: 'jackson square', clue: 'History, artists, and cathedral views all collide here.', task: 'Take a photo with the cathedral or square fencing.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623 },
-    { title: "Mulate's", answer: 'mulates', clue: 'Time to finish strong. Head toward the riverfront warehouse district for your Cajun ending.', task: "Record a 10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703 }
+    { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Canal Street', answerText: 'canal street', participantClueText: 'Start where the city widens, rails run through the center, and downtown gives way to the Quarter.', participantTaskTextPreSolve: 'Take a team photo that clearly shows the main corridor or movement feature of this checkpoint.', participantSuccessTextPostSolve: 'Solved. Keep moving.', hostVerificationTaskText: 'Team shot with Canal Street background.', proofType: 'photo', points: 10, lat: 29.9537, lng: -90.0716 },
+    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: "Pat O'Brien's Flaming Fountain", answerText: 'pat obrien', participantClueText: 'Search for a tucked-away courtyard where a famous drink and a fire-meets-water feature share the spotlight.', participantTaskTextPreSolve: 'Create a dramatic group pose proving you found the hidden courtyard checkpoint.', participantSuccessTextPostSolve: 'Solved. Next clue is ready.', hostVerificationTaskText: 'Storm-blown team pose around the flaming fountain.', proofType: 'photo', points: 15, lat: 29.9579, lng: -90.0653 },
+    { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'Royal Street', answerText: 'royal street', participantClueText: 'Antique shops, buskers, and elegant balconies make this stretch feel polished instead of wild.', participantTaskTextPreSolve: 'Film 5 seconds showing your team interacting with the arts or music energy of the location.', participantSuccessTextPostSolve: 'Solved. Keep pace for a strong finish.', hostVerificationTaskText: '5-second jazz-hands video on Royal Street.', proofType: 'video', points: 15, lat: 29.9589, lng: -90.0645 },
+    { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: 'Jackson Square', answerText: 'jackson square', participantClueText: 'History, artists, and cathedral views come together in the Quarter’s most iconic square.', participantTaskTextPreSolve: 'Take a photo featuring the most recognizable historic or visual element in the area.', participantSuccessTextPostSolve: 'Checkpoint solved. Final checkpoint is next.', hostVerificationTaskText: 'Photo with cathedral or square fencing visible.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623 },
+    { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantClueText: 'Finish strong near the riverfront with Cajun flavor, music, and celebration.', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantSuccessTextPostSolve: 'Route complete. Await host confirmation.', hostVerificationTaskText: "10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703 }
   ],
   E: [
-    { title: 'Lafayette Square', answer: 'lafayette square', clue: 'Start in the shady square where downtown workers and old oaks meet.', task: 'Take a team photo with the square behind you.', proofType: 'photo', points: 10, lat: 29.9496, lng: -90.0704 },
-    { title: 'Royal Street', answer: 'royal street', clue: 'This street trades neon for charm, with antiques, galleries, and musicians.', task: 'Snap a photo of the most elegant balcony or storefront you can find.', proofType: 'photo', points: 10, lat: 29.9589, lng: -90.0645 },
-    { title: 'French Market', answer: 'french market', clue: 'Head toward the long historic market where food, gifts, and local finds line the way.', task: 'Take a group photo by the French Market sign or a row of stalls.', proofType: 'photo', points: 15, lat: 29.9615, lng: -90.0572 },
-    { title: 'Café du Monde', answer: 'cafe du monde', clue: "Follow the scent of coffee and sugar to one of New Orleans' most famous bites.", task: 'Show your best powdered sugar mustache in a photo.', proofType: 'photo', points: 15, lat: 29.9577, lng: -90.0621 },
-    { title: "Mulate's", answer: 'mulates', clue: 'End the hunt with Cajun flavor and a little dancing near the river.', task: "Record a 10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703 }
+    { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Lafayette Square', answerText: 'lafayette square', participantClueText: 'Start in a downtown square shaded by large oaks, where a central monument anchors the scene.', participantTaskTextPreSolve: 'Take a team photo featuring the most recognizable landmark element at this square.', participantSuccessTextPostSolve: 'Solved. Keep your team moving.', hostVerificationTaskText: 'Team photo with the square and central statue area visible.', proofType: 'photo', points: 10, lat: 29.9496, lng: -90.0704 },
+    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: 'Royal Street', answerText: 'royal street', participantClueText: 'This street swaps neon for charm, with galleries, antiques, music, and refined visual details.', participantTaskTextPreSolve: 'Take a photo of the most elegant or distinctive visual detail at this location.', participantSuccessTextPostSolve: 'Solved. Keep going.', hostVerificationTaskText: 'Photo of an elegant balcony or storefront on Royal Street.', proofType: 'photo', points: 10, lat: 29.9589, lng: -90.0645 },
+    { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'French Market', answerText: 'french market', participantClueText: 'Follow the flow of shopping stalls and open-air browsing toward one of the Quarter’s oldest commercial stretches.', participantTaskTextPreSolve: 'Take a group photo proving you found the open-air market checkpoint.', participantSuccessTextPostSolve: 'Solved. One more clue before the finale.', hostVerificationTaskText: 'Group photo by French Market sign or vendor row.', proofType: 'photo', points: 15, lat: 29.9615, lng: -90.0572 },
+    { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: 'Café du Monde', answerText: 'cafe du monde', participantClueText: 'Powdered sugar and café au lait are the giveaway here. Find the city’s iconic sweet-stop tradition.', participantTaskTextPreSolve: 'Take a photo proving your team completed the signature food challenge at this stop.', participantSuccessTextPostSolve: 'Solved. Final checkpoint remains.', hostVerificationTaskText: 'Photo showing powdered sugar mustache.', proofType: 'photo', points: 15, lat: 29.9577, lng: -90.0621 },
+    { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantClueText: 'Wrap the route with Cajun food, dancing, and a river-adjacent finish.', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantSuccessTextPostSolve: 'Route complete. Await host confirmation.', hostVerificationTaskText: "10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703 }
   ],
   F: [
-    { title: 'Royal Street', answer: 'royal street', clue: 'Begin where galleries and street musicians create a quieter rhythm than Bourbon. Find the elegant street of art and iron balconies.', task: 'Take a team photo with a street performer or gallery sign.', proofType: 'photo', points: 10, lat: 29.9589, lng: -90.0645 },
-    { title: 'Jackson Square', answer: 'jackson square', clue: 'Follow the music until cathedral towers appear and artists line the iron fence.', task: 'Take a team photo with St. Louis Cathedral behind you.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623 },
-    { title: 'Café du Monde', answer: 'cafe du monde', clue: 'Powdered sugar floats through the air where beignets rule the Quarter.', task: 'Photo of a powdered sugar mustache.', proofType: 'photo', points: 15, lat: 29.9577, lng: -90.0621 },
-    { title: 'French Market', answer: 'french market', clue: 'Find the historic market stretching along the edge of the Quarter with stalls and souvenirs.', task: 'Group photo near the French Market sign.', proofType: 'photo', points: 15, lat: 29.9615, lng: -90.0572 },
-    { title: "Mulate's", answer: 'mulates', clue: 'Leave the Quarter and head toward the river warehouses for Cajun music and your final celebration.', task: 'Record a Cajun dance video.', proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703 }
+    { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Royal Street', answerText: 'royal street', participantClueText: 'Where nearby streets roar, this one feels more composed—art, music, antiques, and ironwork define the mood.', participantTaskTextPreSolve: 'Take a team photo that proves you found the arts-and-music checkpoint.', participantSuccessTextPostSolve: 'Checkpoint solved. Continue to the next clue.', hostVerificationTaskText: 'Team photo with street musician or gallery sign on Royal Street.', proofType: 'photo', points: 10, lat: 29.9589, lng: -90.0645 },
+    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: 'Jackson Square', answerText: 'jackson square', participantClueText: 'Follow the flow until cathedral towers rise above painters and iron fencing.', participantTaskTextPreSolve: 'Take a team photo featuring the most recognizable landmark element in the area.', participantSuccessTextPostSolve: 'Solved. Keep moving.', hostVerificationTaskText: 'Team photo with St. Louis Cathedral visible.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623 },
+    { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'Café du Monde', answerText: 'cafe du monde', participantClueText: 'Somewhere nearby, hot coffee and powdered sugar have been creating happy messes for decades.', participantTaskTextPreSolve: 'Take a photo proving your team completed the signature treat challenge at this stop.', participantSuccessTextPostSolve: 'Checkpoint solved. Keep pace.', hostVerificationTaskText: 'Photo of powdered sugar mustache.', proofType: 'photo', points: 15, lat: 29.9577, lng: -90.0621 },
+    { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: 'French Market', answerText: 'french market', participantClueText: 'Find the long-running market corridor where stalls and souvenirs line the edge of the Quarter.', participantTaskTextPreSolve: 'Take a group photo proving you found the market checkpoint.', participantSuccessTextPostSolve: 'Solved. Final checkpoint remains.', hostVerificationTaskText: 'Group photo near the French Market sign.', proofType: 'photo', points: 15, lat: 29.9615, lng: -90.0572 },
+    { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantClueText: 'Head out for a Cajun finale with music, food, and a final celebratory dance.', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantSuccessTextPostSolve: 'Route complete. Await host confirmation.', hostVerificationTaskText: "Cajun dance video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703 }
   ]
 }
 
 async function run() {
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
   const routeIdByCode: Record<string, string> = {}
   for (const code of routeCodes) {
     const { data } = await supabase.from('routes').upsert({ code, name: `Route ${code}` }, { onConflict: 'code' }).select('id,code').single()
@@ -90,27 +92,35 @@ async function run() {
     }, { onConflict: 'code' }).select('id').single()
 
     if (data?.id) {
-      await supabase.from('kickoff_progress').upsert({ team_id: data.id, status: 'pending', points_awarded: 10 }, { onConflict: 'team_id' })
+      await supabase.from('kickoff_progress').upsert({ team_id: data.id, status: 'pending', points_awarded: 10, proof_url: null, completed_at: null }, { onConflict: 'team_id' })
     }
   }
 
   for (const code of routeCodes) {
     const routeId = routeIdByCode[code]
     await supabase.from('checkpoints').delete().eq('route_id', routeId)
+
     for (const [index, stop] of routeStops[code].entries()) {
       await supabase.from('checkpoints').insert({
         route_id: routeId,
         order_index: index + 1,
-        title: stop.title,
-        clue_text: stop.clue,
-        task_text: stop.task,
-        unlock_answer: stop.answer,
+        title: stop.internalLocationName,
+        clue_text: stop.participantClueText,
+        task_text: stop.participantTaskTextPreSolve,
+        unlock_answer: stop.answerText,
+        answer_text: stop.answerText,
         unlock_qr: `QR-${code}-${index + 1}`,
         latitude: stop.lat,
         longitude: stop.lng,
         enable_gps: true,
         proof_type: stop.proofType,
-        points: stop.points
+        points: stop.points,
+        public_checkpoint_label: stop.publicCheckpointLabel,
+        participant_clue_text: stop.participantClueText,
+        participant_task_text_pre_solve: stop.participantTaskTextPreSolve,
+        participant_success_text_post_solve: stop.participantSuccessTextPostSolve,
+        internal_location_name: stop.internalLocationName,
+        host_verification_task_text: stop.hostVerificationTaskText
       })
     }
   }
@@ -118,7 +128,13 @@ async function run() {
   console.log('Seed complete')
 }
 
-run().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+import { pathToFileURL } from 'node:url'
+
+const isDirectExecution = process.argv[1] ? import.meta.url === pathToFileURL(process.argv[1]).href : false
+
+if (isDirectExecution) {
+  run().catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
+}

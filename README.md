@@ -36,11 +36,16 @@ Production-ready, mobile-first scavenger hunt web app for a live corporate event
 4. Run SQL migrations in Supabase SQL editor (in order):
    - `supabase/migrations/001_init.sql`
    - `supabase/migrations/002_event_logic.sql`
-5. Seed data:
+  - `supabase/migrations/003_checkpoint_content_split.sql`
+5. Validate anti-reveal content rules:
+   ```bash
+   npm run validate:anti-reveal
+   ```
+6. Seed data:
    ```bash
    npm run seed
    ```
-6. Start dev server:
+7. Start dev server:
    ```bash
    npm run dev
    ```

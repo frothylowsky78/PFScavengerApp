@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "validate:seed": "tsx scripts/validate-seed.ts",
+    "validate:ui": "tsx scripts/validate-ui-anti-reveal.ts",
+    "validate:anti-reveal": "npm run validate:seed && npm run validate:ui"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
