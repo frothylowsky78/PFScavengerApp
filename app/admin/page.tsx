@@ -2,14 +2,32 @@ export const dynamic = 'force-dynamic'
 
 import { getSupabaseServer } from '@/lib/supabase-server'
 
-async function verify(progressId: string, approved: boolean) {
+async function verify(progressId: string, approved: boolean, submissionType: 'kickoff' | 'checkpoint') {
   'use server'
   const supabase = getSupabaseServer()
-  await supabase.from('team_progress').update({
-    status: approved ? 'verified' : 'rejected',
-    points_awarded: approved ? 100 : 0,
-    verified_at: new Date().toISOString()
-  }).eq('id', progressId)
+
+  if (submissionType === 'kickoff') {
+    await supabase
+      .from('kickoff_progress')
+      .update({ status: approved ? 'verified' : 'rejected', points_awarded: approved ? 10 : 0, completed_at: new Date().toISOString() })
+      .eq('id', progressId)
+    return
+  }
+
+  let awarded = 0
+  if (approved) {
+    const { data: row } = await supabase
+      .from('team_progress')
+      .select('checkpoint_id, checkpoints(points)')
+      .eq('id', progressId)
+      .single()
+    awarded = (row?.checkpoints as { points?: number } | null)?.points ?? 10
+  }
+
+  await supabase
+    .from('team_progress')
+    .update({ status: approved ? 'verified' : 'rejected', points_awarded: awarded, verified_at: new Date().toISOString() })
+    .eq('id', progressId)
 }
 
 export default async function AdminPage() {
@@ -27,7 +45,7 @@ export default async function AdminPage() {
   const supabase = getSupabaseServer()
   const [{ data: leaderboard }, { data: submissions }] = await Promise.all([
     supabase.from('leaderboard_view').select('*').order('total_points', { ascending: false }),
-    supabase.from('pending_submissions_view').select('*').limit(50)
+    supabase.from('pending_submissions_view').select('*').limit(100)
   ])
 
   return (
@@ -51,12 +69,12 @@ export default async function AdminPage() {
         <h2 className="text-xl font-semibold">Verification Queue</h2>
         {submissions?.map((s) => (
           <div key={s.progress_id} className="rounded-lg border border-slate-700 p-3 space-y-2">
-            <p><strong>{s.team_name}</strong> · {s.checkpoint_title}</p>
-            <p className="text-sm">Answer: {s.answer_text || '—'}</p>
+            <p><strong>{s.team_name}</strong> · {s.checkpoint_title} <span className="text-xs uppercase text-slate-400">({s.submission_type})</span></p>
+            <p className="text-sm">Details: {s.answer_text || '—'}</p>
             <a href={s.proof_url || '#'} target="_blank" className="text-blue-300">Open proof</a>
             <div className="flex gap-2">
-              <form action={verify.bind(null, s.progress_id, true)}><button className="btn bg-emerald-600">Approve +100</button></form>
-              <form action={verify.bind(null, s.progress_id, false)}><button className="btn bg-rose-600">Reject</button></form>
+              <form action={verify.bind(null, s.progress_id, true, s.submission_type)}><button className="btn bg-emerald-600">Approve</button></form>
+              <form action={verify.bind(null, s.progress_id, false, s.submission_type)}><button className="btn bg-rose-600">Reject</button></form>
             </div>
           </div>
         ))}

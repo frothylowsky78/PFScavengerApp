@@ -7,6 +7,7 @@ export async function POST(request: NextRequest) {
   const teamCode = String(formData.get('teamCode') || '')
   const checkpointId = String(formData.get('checkpointId') || '')
   const answer = String(formData.get('answer') || '')
+  const isKickoff = String(formData.get('isKickoff') || '') === 'true'
 
   const supabase = getSupabaseServer()
   const { data: team } = await supabase.from('teams').select('id').eq('code', teamCode).single()
@@ -16,12 +17,23 @@ export async function POST(request: NextRequest) {
   if (file && file.size > 0) {
     const bytes = new Uint8Array(await file.arrayBuffer())
     const ext = file.name.split('.').pop() || 'bin'
-    const path = `proofs/${teamCode}/${checkpointId}-${Date.now()}.${ext}`
+    const prefix = isKickoff ? 'kickoff' : checkpointId
+    const path = `proofs/${teamCode}/${prefix}-${Date.now()}.${ext}`
     const upload = await supabase.storage.from('hunt-proofs').upload(path, bytes, { contentType: file.type, upsert: false })
     if (!upload.error) {
       const pub = supabase.storage.from('hunt-proofs').getPublicUrl(path)
       proofUrl = pub.data.publicUrl
     }
+  }
+
+  if (isKickoff) {
+    const { data: existing } = await supabase.from('kickoff_progress').select('id').eq('team_id', team.id).maybeSingle()
+    if (existing) {
+      await supabase.from('kickoff_progress').update({ proof_url: proofUrl, status: 'submitted', completed_at: new Date().toISOString() }).eq('id', existing.id)
+    } else {
+      await supabase.from('kickoff_progress').insert({ team_id: team.id, proof_url: proofUrl, status: 'submitted', completed_at: new Date().toISOString(), points_awarded: 10 })
+    }
+    return NextResponse.json({ message: 'Kickoff proof uploaded. Route unlocked!' })
   }
 
   const { data: existing } = await supabase.from('team_progress').select('id').eq('team_id', team.id).eq('checkpoint_id', checkpointId).maybeSingle()

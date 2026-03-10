@@ -10,8 +10,8 @@ Production-ready, mobile-first scavenger hunt web app for a live corporate event
 
 ## Features
 - Participant-first mobile UI with large buttons and color-coded teams
-- Team-specific route assignment and kickoff challenge support
-- Hybrid checkpoint progression (unlock by QR or answer + proof upload)
+- Team-specific route assignment and unique kickoff challenge support (step 0 gate)
+- Hybrid checkpoint progression (unlock by QR or answer + proof upload) with distinct route checkpoint content
 - Photo/video proof uploads to Supabase Storage bucket (`hunt-proofs`)
 - GPS warmer/colder hinting on active clue
 - Host/Admin dashboard for verification queue and leaderboard
@@ -33,8 +33,9 @@ Production-ready, mobile-first scavenger hunt web app for a live corporate event
    cp .env.example .env.local
    ```
 3. Fill `.env.local` with your Supabase URL, anon key, and service role key.
-4. Run SQL migration in Supabase SQL editor:
+4. Run SQL migrations in Supabase SQL editor (in order):
    - `supabase/migrations/001_init.sql`
+   - `supabase/migrations/002_event_logic.sql`
 5. Seed data:
    ```bash
    npm run seed
