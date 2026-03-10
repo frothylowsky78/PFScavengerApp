@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { TEAM_META } from '@/lib/team-meta'
 
@@ -48,6 +48,7 @@ export default function TeamPage() {
   const [message, setMessage] = useState('')
   const [hint, setHint] = useState('')
   const [distanceFeet, setDistanceFeet] = useState<number | null>(null)
+  const [lastSyncedAt, setLastSyncedAt] = useState<string>('')
 
   const kickoffComplete = kickoffState?.status === 'submitted' || kickoffState?.status === 'verified'
 
@@ -64,16 +65,28 @@ export default function TeamPage() {
     return checkpoints.length - 1
   }, [progress, checkpoints])
 
+  const refreshTeamState = useCallback(async () => {
+    if (!team) return
+
+    const res = await fetch(`/api/leaderboard?team=${team.code}`, { cache: 'no-store' })
+    const data = await res.json()
+    setCheckpoints(data.checkpoints ?? [])
+    setProgress(data.progress ?? [])
+    setKickoffChallenge(data.team?.kickoffChallenge ?? '')
+    setKickoffState(data.kickoff ?? { status: 'pending', completed_at: null, points_awarded: 10 })
+    setLastSyncedAt(new Date().toLocaleTimeString())
+  }, [team])
+
   useEffect(() => {
     if (!team) return
-    fetch(`/api/leaderboard?team=${team.code}`).then(async (res) => {
-      const data = await res.json()
-      setCheckpoints(data.checkpoints ?? [])
-      setProgress(data.progress ?? [])
-      setKickoffChallenge(data.team?.kickoffChallenge ?? '')
-      setKickoffState(data.kickoff ?? { status: 'pending', completed_at: null, points_awarded: 10 })
-    })
-  }, [team])
+    refreshTeamState()
+
+    const timer = window.setInterval(() => {
+      refreshTeamState()
+    }, 15000)
+
+    return () => window.clearInterval(timer)
+  }, [team, refreshTeamState])
 
   if (!team) return <main className="p-4">Invalid team.</main>
   const activeCheckpoint = checkpoints[activeIndex]
@@ -90,7 +103,7 @@ export default function TeamPage() {
     const res = await fetch('/api/upload', { method: 'POST', body: formData })
     const data = await res.json()
     setMessage(data.message)
-    window.location.reload()
+    await refreshTeamState()
   }
 
   function computeHint() {
@@ -129,6 +142,7 @@ export default function TeamPage() {
         <h1 className="text-2xl font-bold" style={{ color: team.hex }}>{team.name}</h1>
         <p>Route {team.routeCode} · Score: {totalPoints}</p>
         <p className="text-sm text-slate-300">Kickoff: {kickoffComplete ? 'Complete' : 'Not complete'} · Elapsed: {elapsedMinutes} min</p>
+        <p className="text-xs text-slate-400">Auto-refresh: every 15s{lastSyncedAt ? ` · Last synced ${lastSyncedAt}` : ''}</p>
       </header>
 
       <section className="card space-y-2">

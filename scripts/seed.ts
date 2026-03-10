@@ -65,11 +65,11 @@ const locationClues = {
     'Look for lines, green-and-white visual cues, and people balancing paper bags with warm pastries.'
   ], task),
   finalDanceHall: (task: string) => buildClue([
-    'Your finish is in the river-adjacent warehouse district where the vibe shifts from tourist maze to broad avenues.',
-    'Music, food, and dancing combine here for a high-energy wrap-up that feels distinctly Cajun.',
-    'Teams usually arrive tired and loud, then reset for one last celebratory moment.',
-    'If you are still deep in tight Quarter lanes, you have not gone far enough toward the final zone.',
-    'Think larger building footprints, event-night energy, and a true end-of-route atmosphere.'
+    'Your finish is beyond the French Quarter, where the streets widen and old warehouse blocks replace the tight tourist maze.',
+    'This last stop is known as the original Cajun restaurant, a high-energy place where Louisiana flavor, live music, and dancing come together under one roof.',
+    'Look near the Convention Center for a destination that feels more like a Cajun party than a quiet dinner.',
+    'If you are still in balcony-lined Quarter streets, keep going.',
+    'If you are along the water or at the Outlets, you have gone too far.'
   ], task),
   canal: (task: string) => buildClue([
     'Start on the broad downtown edge where the Quarter begins and movement channels in multiple directions.',
@@ -89,8 +89,8 @@ const locationClues = {
     'Look for a tucked-away courtyard linked to a famous cocktail stop in the Quarter.',
     'Inside, one feature is memorable because fire appears above water in the same focal point.',
     'This isn’t a street-corner landmark, so you need to slip off the main path to locate it.',
-    'The atmosphere is theatrical, photogenic, and often packed with visitors taking dramatic poses.',
-    'If your team enters a hidden patio and immediately knows it is unique, you found the right place.'
+    'The atmosphere is photogenic, and often packed with visitors enjoying the weather and a Hurricane.',
+    'If your team enters a hidden patio and immediately knows it is iconic, you found the right place.'
   ], task),
   gallier: (task: string) => buildClue([
     'Head to a formal civic landmark on the major boulevard where parades and ceremonies often pass.',
@@ -132,7 +132,7 @@ export const routeStops: Record<string, SeedStop[]> = {
   ],
   D: [
     { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Canal Street', answerText: 'canal street', participantTaskTextPreSolve: 'Take a team photo that clearly shows the main corridor or movement feature of this checkpoint.', participantClueText: locationClues.canal('Take a team photo that clearly shows the main corridor or movement feature of this checkpoint.'), participantSuccessTextPostSolve: 'Solved. Keep moving.', hostVerificationTaskText: 'Team shot with Canal Street background.', proofType: 'photo', points: 10, lat: 29.9537, lng: -90.0716, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: "Pat O'Brien's Flaming Fountain", answerText: 'pat obrien', participantTaskTextPreSolve: 'Create a dramatic group pose proving you found the hidden courtyard checkpoint.', participantClueText: locationClues.flamingFountain('Create a dramatic group pose proving you found the hidden courtyard checkpoint.'), participantSuccessTextPostSolve: 'Solved. Next clue is ready.', hostVerificationTaskText: 'Storm-blown team pose around the flaming fountain.', proofType: 'photo', points: 15, lat: 29.9579, lng: -90.0653, difficultyLevel: 'hard' },
+    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: "Pat O'Brien's Flaming Fountain", answerText: 'pat obrien', participantTaskTextPreSolve: 'Take a dramatic team photo proving you found the correct hidden courtyard feature.', participantClueText: locationClues.flamingFountain('Take a dramatic team photo proving you found the correct hidden courtyard feature.'), participantSuccessTextPostSolve: 'Solved. Next clue is ready.', hostVerificationTaskText: 'Storm-blown team pose around the flaming fountain.', proofType: 'photo', points: 15, lat: 29.9579, lng: -90.0653, difficultyLevel: 'hard' },
     { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'Royal Street', answerText: 'royal street', participantTaskTextPreSolve: 'Film 5 seconds showing your team interacting with the arts or music energy of the location.', participantClueText: locationClues.royal('Film 5 seconds showing your team interacting with the arts or music energy of the location.'), participantSuccessTextPostSolve: 'Solved. Keep pace for a strong finish.', hostVerificationTaskText: '5-second jazz-hands video on Royal Street.', proofType: 'video', points: 15, lat: 29.9589, lng: -90.0645, difficultyLevel: 'hard' },
     { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: 'Jackson Square', answerText: 'jackson square', participantTaskTextPreSolve: 'Take a photo featuring the most recognizable historic or visual element in the area.', participantClueText: locationClues.jackson('Take a photo featuring the most recognizable historic or visual element in the area.'), participantSuccessTextPostSolve: 'Checkpoint solved. Final checkpoint is next.', hostVerificationTaskText: 'Photo with cathedral or square fencing visible.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623, difficultyLevel: 'hard' },
     { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantClueText: locationClues.finalDanceHall('Record a 10-second celebration video at the final destination.'), participantSuccessTextPostSolve: 'Route complete. Await host confirmation.', hostVerificationTaskText: "10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703, difficultyLevel: 'medium' }

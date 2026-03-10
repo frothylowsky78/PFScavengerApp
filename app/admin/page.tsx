@@ -1,7 +1,12 @@
 export const dynamic = 'force-dynamic'
 
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { getSupabaseServer } from '@/lib/supabase-server'
+
+const HOST_ADMIN_PASSWORD = 'JCP1234!'
+const HOST_ADMIN_COOKIE = 'pf_host_admin_auth'
 
 type ReviewedProof = {
   id: string
@@ -45,7 +50,64 @@ async function verify(progressId: string, approved: boolean, submissionType: 'ki
   revalidatePath('/admin')
 }
 
-export default async function AdminPage() {
+async function authenticateHost(formData: FormData) {
+  'use server'
+  const password = String(formData.get('password') ?? '')
+
+  if (password !== HOST_ADMIN_PASSWORD) {
+    redirect('/admin?error=1')
+  }
+
+  const cookieStore = await cookies()
+  cookieStore.set(HOST_ADMIN_COOKIE, 'ok', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 60 * 60 * 12
+  })
+
+  redirect('/admin')
+}
+
+async function logoutHost() {
+  'use server'
+  const cookieStore = await cookies()
+  cookieStore.delete(HOST_ADMIN_COOKIE)
+  redirect('/admin')
+}
+
+export default async function AdminPage({
+  searchParams
+}: {
+  searchParams?: Promise<{ error?: string }>
+}) {
+  const params = searchParams ? await searchParams : undefined
+  const cookieStore = await cookies()
+  const isAuthenticated = cookieStore.get(HOST_ADMIN_COOKIE)?.value === 'ok'
+
+  if (!isAuthenticated) {
+    return (
+      <main className="min-h-screen p-4 max-w-md mx-auto">
+        <section className="card space-y-3">
+          <h1 className="text-2xl font-bold">Host Dashboard Login</h1>
+          <p className="text-sm text-slate-300">Enter the host password to access admin controls.</p>
+          {params?.error ? <p className="text-sm text-rose-300">Incorrect password. Please try again.</p> : null}
+          <form action={authenticateHost} className="space-y-3">
+            <input
+              type="password"
+              name="password"
+              required
+              className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+              placeholder="Host password"
+            />
+            <button className="btn w-full">Enter Host Dashboard</button>
+          </form>
+        </section>
+      </main>
+    )
+  }
+
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return (
       <main className="min-h-screen p-4 max-w-3xl mx-auto">
@@ -100,7 +162,10 @@ export default async function AdminPage() {
 
   return (
     <main className="min-h-screen p-4 max-w-3xl mx-auto space-y-4">
-      <h1 className="text-3xl font-bold">Host Dashboard</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-3xl font-bold">Host Dashboard</h1>
+        <form action={logoutHost}><button className="btn bg-slate-700">Log out</button></form>
+      </div>
       <section className="card overflow-x-auto">
         <h2 className="text-xl font-semibold mb-2">Live Leaderboard</h2>
         <table className="w-full text-sm">
