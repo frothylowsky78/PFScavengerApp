@@ -2,3 +2,5 @@ node_modules
 .next
 .env.local
 .vercel
+package-lock.json
+tsconfig.tsbuildinfo
