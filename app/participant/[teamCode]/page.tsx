@@ -4,6 +4,25 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { TEAM_META } from '@/lib/team-meta'
 
+type DeviceClaim =
+  | { status: 'checking' }
+  | { status: 'owner'; claimedAt: string | null }
+  | { status: 'locked'; activeSince: string | null }
+  | { status: 'error'; message: string }
+
+function getOrCreateDeviceId(): string {
+  if (typeof window === 'undefined') return ''
+  const key = 'pf-scavenger-device-id'
+  const existing = window.localStorage.getItem(key)
+  if (existing) return existing
+  const fresh =
+    typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `dev-${Date.now()}-${Math.random().toString(36).slice(2)}`
+  window.localStorage.setItem(key, fresh)
+  return fresh
+}
+
 type Checkpoint = {
   id: string
   order_index: number
@@ -49,6 +68,48 @@ export default function TeamPage() {
   const [hint, setHint] = useState('')
   const [distanceFeet, setDistanceFeet] = useState<number | null>(null)
   const [lastSyncedAt, setLastSyncedAt] = useState<string>('')
+  const [deviceId, setDeviceId] = useState<string>('')
+  const [claim, setClaim] = useState<DeviceClaim>({ status: 'checking' })
+  const [takingOver, setTakingOver] = useState(false)
+
+  useEffect(() => {
+    setDeviceId(getOrCreateDeviceId())
+  }, [])
+
+  const claimDevice = useCallback(
+    async (takeover = false) => {
+      if (!team || !deviceId) return
+      try {
+        const res = await fetch('/api/device/claim', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ teamCode: team.code, deviceId, takeover })
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          setClaim({ status: 'error', message: data.message || 'Unable to claim device.' })
+          return
+        }
+        if (data.owner) {
+          setClaim({ status: 'owner', claimedAt: data.claimedAt ?? null })
+        } else {
+          setClaim({ status: 'locked', activeSince: data.activeSince ?? null })
+        }
+      } catch {
+        setClaim({ status: 'error', message: 'Network error claiming device.' })
+      }
+    },
+    [team, deviceId]
+  )
+
+  useEffect(() => {
+    if (!team || !deviceId) return
+    claimDevice(false)
+    const timer = window.setInterval(() => {
+      claimDevice(false)
+    }, 30000)
+    return () => window.clearInterval(timer)
+  }, [team, deviceId, claimDevice])
 
   const kickoffComplete = kickoffState?.status === 'submitted' || kickoffState?.status === 'verified'
 
@@ -91,6 +152,13 @@ export default function TeamPage() {
   if (!team) return <main className="p-4">Invalid team.</main>
   const activeCheckpoint = checkpoints[activeIndex]
 
+  async function handleTakeover() {
+    setTakingOver(true)
+    await claimDevice(true)
+    setTakingOver(false)
+    await refreshTeamState()
+  }
+
   async function handleSubmitProof(isKickoff = false) {
     if (!team || (!isKickoff && !activeCheckpoint)) return
     const formData = new FormData()
@@ -99,10 +167,15 @@ export default function TeamPage() {
     formData.append('checkpointId', isKickoff ? 'kickoff' : activeCheckpoint!.id)
     formData.append('answer', answer)
     formData.append('isKickoff', String(isKickoff))
+    formData.append('deviceId', deviceId)
 
     const res = await fetch('/api/upload', { method: 'POST', body: formData })
     const data = await res.json()
     setMessage(data.message)
+    if (res.status === 409) {
+      await claimDevice(false)
+      return
+    }
     await refreshTeamState()
   }
 
@@ -169,7 +242,33 @@ export default function TeamPage() {
         </section>
       ) : null}
 
-      {!kickoffComplete ? (
+      {claim.status === 'locked' ? (
+        <section className="card border border-rose-600/50 bg-rose-950/30 space-y-3">
+          <h2 className="text-lg font-semibold text-rose-200">Another phone is active for this team</h2>
+          <p className="text-sm text-rose-100">
+            Only one phone per team can submit at a time. You can watch progress here, but submissions are locked on this device
+            {claim.activeSince ? ` (active phone claimed at ${new Date(claim.activeSince).toLocaleTimeString()})` : ''}.
+          </p>
+          <p className="text-sm text-rose-100">
+            If the other phone is out of reach or the battery died, take over from this device. The previous phone will be locked out until it takes over again.
+          </p>
+          <button
+            className="btn w-full bg-rose-500 text-white"
+            disabled={takingOver}
+            onClick={handleTakeover}
+          >
+            {takingOver ? 'Taking over…' : 'Take over this device'}
+          </button>
+        </section>
+      ) : null}
+
+      {claim.status === 'error' ? (
+        <section className="card border border-amber-500/50 bg-amber-950/30">
+          <p className="text-sm text-amber-100">{claim.message} Retrying automatically…</p>
+        </section>
+      ) : null}
+
+      {claim.status !== 'owner' ? null : !kickoffComplete ? (
         <section className="card space-y-3">
           <p className="text-xs uppercase text-slate-400">Step 0 · NOPSI Kickoff Challenge</p>
           <h2 className="text-xl font-semibold">Complete this before route clues unlock</h2>

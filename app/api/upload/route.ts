@@ -8,10 +8,26 @@ export async function POST(request: NextRequest) {
   const checkpointId = String(formData.get('checkpointId') || '')
   const answer = String(formData.get('answer') || '')
   const isKickoff = String(formData.get('isKickoff') || '') === 'true'
+  const deviceId = String(formData.get('deviceId') || '')
+
+  if (!deviceId) {
+    return NextResponse.json({ message: 'Device not registered. Reload the page to claim this team.' }, { status: 400 })
+  }
 
   const supabase = getSupabaseServer()
-  const { data: team } = await supabase.from('teams').select('id').eq('code', teamCode).single()
+  const { data: team } = await supabase
+    .from('teams')
+    .select('id, active_device_id')
+    .eq('code', teamCode)
+    .single()
   if (!team) return NextResponse.json({ message: 'Team not found' }, { status: 404 })
+
+  if (team.active_device_id && team.active_device_id !== deviceId) {
+    return NextResponse.json(
+      { message: 'Another phone is currently active for this team. Take over on your device to submit.' },
+      { status: 409 }
+    )
+  }
 
   let proofUrl: string | null = null
   if (file && file.size > 0) {
