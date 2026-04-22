@@ -353,7 +353,7 @@ export const routeStops: Record<string, SeedStop[]> = {
       participantClueText:
         'Park City doesn’t always move flat. Find the connection that climbs between levels.',
       participantTaskTextPreSolve:
-        'Take a team photo proving you found the staircase checkpoint.',
+        'Take a team photo proving you found this between-levels checkpoint.',
       participantSuccessTextPostSolve: successNonFinal,
       hostVerificationTaskText:
         'Team photo on a Main Street staircase connection.',
