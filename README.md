@@ -38,6 +38,7 @@ Production-ready, mobile-first scavenger hunt web app for a live corporate event
    - `supabase/migrations/002_event_logic.sql`
    - `supabase/migrations/003_checkpoint_content_split.sql`
    - `supabase/migrations/004_clue_difficulty.sql`
+   - `supabase/migrations/005_team_devices.sql`
 5. Validate anti-reveal content rules:
    ```bash
    npm run validate:anti-reveal
