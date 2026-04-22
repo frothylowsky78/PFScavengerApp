@@ -44,7 +44,7 @@ for (const team of TEAM_META) {
         stop.publicCheckpointLabel,
         stop.internalLocationName,
         stop.answerText,
-        stop.difficultyLevel,
+        'medium',
         stop.proofType,
         stop.points,
         stop.participantTaskTextPreSolve,

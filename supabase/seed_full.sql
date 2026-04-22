@@ -19,15 +19,27 @@ delete from checkpoints;
 delete from teams;
 delete from routes;
 
+-- Bus starts (Park City)
+insert into bus_starts (code, name, description, lat, lng) values
+  ('A', 'Bus A — Upper Main Street', 'Drop-off at the Egyptian Theatre area on Upper Main Street.', 40.6437, -111.4965),
+  ('B', 'Bus B — Lower Main Street', 'Drop-off at the Town Lift plaza on Lower Main Street.', 40.6479, -111.4974)
+on conflict (code) do update
+set name = excluded.name,
+    description = excluded.description,
+    lat = excluded.lat,
+    lng = excluded.lng;
+
 -- Routes
-insert into routes (code, name) values
-  ('A', 'Route A'),
-  ('B', 'Route B'),
-  ('C', 'Route C'),
-  ('D', 'Route D'),
-  ('E', 'Route E'),
-  ('F', 'Route F')
-on conflict (code) do update set name = excluded.name;
+insert into routes (code, name, sort_order) values
+  ('A', 'Route A', 1),
+  ('B', 'Route B', 2),
+  ('C', 'Route C', 3),
+  ('D', 'Route D', 4),
+  ('E', 'Route E', 5),
+  ('F', 'Route F', 6)
+on conflict (code) do update
+set name = excluded.name,
+    sort_order = excluded.sort_order;
 
 -- Teams (WorkMoney Park City)
 insert into teams (code, name, color_hex, route_id, kickoff_challenge, kickoff_proof_type, bus_start)
