@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { TEAM_META } from '@/lib/team-meta'
+import { TEAM_META, BUS_STARTS, type BusStartCode } from '@/lib/team-meta'
 
 type DeviceClaim =
   | { status: 'checking' }
@@ -30,7 +30,7 @@ type Checkpoint = {
   participant_clue_text: string
   participant_task_text_pre_solve: string
   participant_success_text_post_solve: string
-  proof_type: 'photo' | 'video'
+  proof_type: 'photo' | 'text'
   enable_gps: boolean
   latitude: number | null
   longitude: number | null
@@ -55,15 +55,23 @@ type KickoffState = {
   points_awarded: number
 }
 
+type TeamApi = {
+  kickoffChallenge: string
+  kickoffProofType: 'photo' | 'text'
+  busStart: BusStartCode | null
+}
+
 export default function TeamPage() {
   const params = useParams<{ teamCode: string }>()
   const team = TEAM_META.find((t) => t.code === params.teamCode)
   const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([])
   const [progress, setProgress] = useState<ProgressRow[]>([])
-  const [kickoffChallenge, setKickoffChallenge] = useState('')
+  const [teamApi, setTeamApi] = useState<TeamApi>({ kickoffChallenge: '', kickoffProofType: 'photo', busStart: null })
   const [kickoffState, setKickoffState] = useState<KickoffState | null>(null)
   const [answer, setAnswer] = useState('')
+  const [kickoffAnswer, setKickoffAnswer] = useState('')
   const [file, setFile] = useState<File | null>(null)
+  const [kickoffFile, setKickoffFile] = useState<File | null>(null)
   const [message, setMessage] = useState('')
   const [hint, setHint] = useState('')
   const [distanceFeet, setDistanceFeet] = useState<number | null>(null)
@@ -115,25 +123,26 @@ export default function TeamPage() {
 
   const activeIndex = useMemo(() => {
     if (checkpoints.length === 0) return 0
-
     const progressByCheckpoint = new Map(progress.map((p) => [p.checkpoint_id, p.status]))
     const firstBlockedIndex = checkpoints.findIndex((checkpoint) => {
       const status = progressByCheckpoint.get(checkpoint.id)
       return status !== 'submitted' && status !== 'verified'
     })
-
     if (firstBlockedIndex >= 0) return firstBlockedIndex
     return checkpoints.length - 1
   }, [progress, checkpoints])
 
   const refreshTeamState = useCallback(async () => {
     if (!team) return
-
     const res = await fetch(`/api/leaderboard?team=${team.code}`, { cache: 'no-store' })
     const data = await res.json()
     setCheckpoints(data.checkpoints ?? [])
     setProgress(data.progress ?? [])
-    setKickoffChallenge(data.team?.kickoffChallenge ?? '')
+    setTeamApi({
+      kickoffChallenge: data.team?.kickoffChallenge ?? '',
+      kickoffProofType: data.team?.kickoffProofType ?? 'photo',
+      busStart: data.team?.busStart ?? null
+    })
     setKickoffState(data.kickoff ?? { status: 'pending', completed_at: null, points_awarded: 10 })
     setLastSyncedAt(new Date().toLocaleTimeString())
   }, [team])
@@ -141,16 +150,20 @@ export default function TeamPage() {
   useEffect(() => {
     if (!team) return
     refreshTeamState()
-
     const timer = window.setInterval(() => {
       refreshTeamState()
     }, 15000)
-
     return () => window.clearInterval(timer)
   }, [team, refreshTeamState])
 
   if (!team) return <main className="p-4">Invalid team.</main>
   const activeCheckpoint = checkpoints[activeIndex]
+  const allCheckpointsDone =
+    checkpoints.length > 0 &&
+    checkpoints.every((c) => {
+      const row = progress.find((p) => p.checkpoint_id === c.id)
+      return row?.status === 'submitted' || row?.status === 'verified'
+    })
 
   async function handleTakeover() {
     setTakingOver(true)
@@ -159,16 +172,34 @@ export default function TeamPage() {
     await refreshTeamState()
   }
 
-  async function handleSubmitProof(isKickoff = false) {
-    if (!team || (!isKickoff && !activeCheckpoint)) return
+  async function handleSubmitKickoff() {
+    if (!team) return
+    const formData = new FormData()
+    if (kickoffFile) formData.append('file', kickoffFile)
+    formData.append('teamCode', team.code)
+    formData.append('checkpointId', 'kickoff')
+    formData.append('answer', kickoffAnswer)
+    formData.append('isKickoff', 'true')
+    formData.append('deviceId', deviceId)
+    const res = await fetch('/api/upload', { method: 'POST', body: formData })
+    const data = await res.json()
+    setMessage(data.message)
+    if (res.status === 409) {
+      await claimDevice(false)
+      return
+    }
+    await refreshTeamState()
+  }
+
+  async function handleSubmitCheckpoint() {
+    if (!team || !activeCheckpoint) return
     const formData = new FormData()
     if (file) formData.append('file', file)
     formData.append('teamCode', team.code)
-    formData.append('checkpointId', isKickoff ? 'kickoff' : activeCheckpoint!.id)
+    formData.append('checkpointId', activeCheckpoint.id)
     formData.append('answer', answer)
-    formData.append('isKickoff', String(isKickoff))
+    formData.append('isKickoff', 'false')
     formData.append('deviceId', deviceId)
-
     const res = await fetch('/api/upload', { method: 'POST', body: formData })
     const data = await res.json()
     setMessage(data.message)
@@ -184,7 +215,6 @@ export default function TeamPage() {
       setHint('GPS hint unavailable for this checkpoint.')
       return
     }
-
     navigator.geolocation.getCurrentPosition((position) => {
       const lat1 = position.coords.latitude
       const lon1 = position.coords.longitude
@@ -194,26 +224,29 @@ export default function TeamPage() {
       const feet = Math.round(distance * 3.28084)
       setDistanceFeet(feet)
       const direction = getCardinalDirection(lat1, lon1, lat2, lon2)
-
-      if (distance < 60) setHint(`🔥 Very hot — about ${feet} ft away (${direction}).`)
-      else if (distance < 160) setHint(`🙂 Warm — about ${feet} ft away (${direction}).`)
-      else setHint(`🧊 Cold — about ${feet} ft away (${direction}).`)
+      if (distance < 60) setHint(`Very hot — about ${feet} ft away (${direction}).`)
+      else if (distance < 160) setHint(`Warm — about ${feet} ft away (${direction}).`)
+      else setHint(`Cold — about ${feet} ft away (${direction}).`)
     })
   }
 
   const checkpointScore = progress.reduce((acc, p) => acc + p.points_awarded, 0)
   const totalPoints = checkpointScore + (kickoffState?.points_awarded ?? 0)
   const elapsedMinutes = kickoffState?.completed_at ? Math.floor((Date.now() - new Date(kickoffState.completed_at).getTime()) / 60000) : 0
-
-  const lastCheckpointOrder = checkpoints.length > 0 ? checkpoints[checkpoints.length - 1].order_index : 0
-  const currentCheckpointOrder = activeCheckpoint?.order_index ?? 0
-  const showTransportPrompt = kickoffComplete && elapsedMinutes > 55 && currentCheckpointOrder >= lastCheckpointOrder && lastCheckpointOrder > 0
+  const busStart = teamApi.busStart ?? team.busStart
+  const busInfo = busStart ? BUS_STARTS[busStart] : null
 
   return (
     <main className="min-h-screen p-4 max-w-md mx-auto space-y-4">
       <header className="card" style={{ borderColor: team.hex }}>
-        <h1 className="text-2xl font-bold" style={{ color: team.hex }}>{team.name}</h1>
-        <p>Route {team.routeCode} · Score: {totalPoints}</p>
+        <div className="flex items-center gap-3">
+          <span className="inline-block h-6 w-6 rounded-full border border-slate-700" style={{ backgroundColor: team.hex }} aria-hidden />
+          <h1 className="text-2xl font-bold" style={{ color: team.hex }}>{team.name}</h1>
+        </div>
+        <p className="mt-1">Route {team.routeCode} · Score: {totalPoints}</p>
+        {busInfo ? (
+          <p className="text-sm text-slate-300">{busInfo.name}</p>
+        ) : null}
         <p className="text-sm text-slate-300">Kickoff: {kickoffComplete ? 'Complete' : 'Not complete'} · Elapsed: {elapsedMinutes} min</p>
         <p className="text-xs text-slate-400">Auto-refresh: every 15s{lastSyncedAt ? ` · Last synced ${lastSyncedAt}` : ''}</p>
       </header>
@@ -223,24 +256,15 @@ export default function TeamPage() {
         <ul className="space-y-1 text-sm">
           <li>Step 0 · Kickoff {kickoffComplete ? '✅' : '⏳'}</li>
           {checkpoints.map((checkpoint) => {
-            const defaultLabel = checkpoint.order_index === checkpoints.length ? 'Final checkpoint' : `Checkpoint ${checkpoint.order_index}`
-            const label = checkpoint.public_checkpoint_label || defaultLabel
-            const solvedName = checkpoint.solved ? ` — ${checkpoint.reveal?.internal_location_name ?? ''}` : ''
+            const isFinal = checkpoint.order_index === checkpoints.length
+            const label = isFinal ? 'Final checkpoint' : `Checkpoint ${checkpoint.order_index}`
+            const icon = checkpoint.status === 'verified' ? '✅' : checkpoint.status === 'submitted' ? '🕓' : checkpoint.status === 'rejected' ? '❌' : '🔒'
             return (
-              <li key={checkpoint.id}>
-                {checkpoint.status === 'verified' ? '✅' : checkpoint.status === 'submitted' ? '🕓' : checkpoint.status === 'rejected' ? '❌' : '🔒'} {label}{solvedName}
-              </li>
+              <li key={checkpoint.id}>{icon} {label}</li>
             )
           })}
         </ul>
       </section>
-
-      {showTransportPrompt ? (
-        <section className="card border border-amber-500/50 bg-amber-950/30 space-y-2">
-          <h2 className="text-lg font-semibold text-amber-300">Need a boost?</h2>
-          <p className="text-sm text-amber-100">You’re in the final stretch. If you&apos;re running behind, grab a quick Uber/Lyft or pedicab to the final stop.</p>
-        </section>
-      ) : null}
 
       {claim.status === 'locked' ? (
         <section className="card border border-rose-600/50 bg-rose-950/30 space-y-3">
@@ -252,11 +276,7 @@ export default function TeamPage() {
           <p className="text-sm text-rose-100">
             If the other phone is out of reach or the battery died, take over from this device. The previous phone will be locked out until it takes over again.
           </p>
-          <button
-            className="btn w-full bg-rose-500 text-white"
-            disabled={takingOver}
-            onClick={handleTakeover}
-          >
+          <button className="btn w-full bg-rose-500 text-white" disabled={takingOver} onClick={handleTakeover}>
             {takingOver ? 'Taking over…' : 'Take over this device'}
           </button>
         </section>
@@ -270,25 +290,49 @@ export default function TeamPage() {
 
       {claim.status !== 'owner' ? null : !kickoffComplete ? (
         <section className="card space-y-3">
-          <p className="text-xs uppercase text-slate-400">Step 0 · NOPSI Kickoff Challenge</p>
+          <p className="text-xs uppercase text-slate-400">Step 0 · Kickoff Challenge</p>
           <h2 className="text-xl font-semibold">Complete this before route clues unlock</h2>
-          <p>{kickoffChallenge}</p>
-          <p className="text-sm text-slate-300">Upload kickoff proof (photo or short video).</p>
-          <input type="file" accept="image/*,video/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-          <button className="btn w-full bg-emerald-500 text-black" onClick={() => handleSubmitProof(true)}>Upload kickoff proof</button>
+          <p>{teamApi.kickoffChallenge}</p>
+          {teamApi.kickoffProofType === 'text' ? (
+            <>
+              <p className="text-sm text-slate-300">Enter your team&apos;s answer below.</p>
+              <textarea
+                className="w-full rounded-lg p-3 text-black"
+                rows={3}
+                placeholder="Type your answer here"
+                value={kickoffAnswer}
+                onChange={(e) => setKickoffAnswer(e.target.value)}
+              />
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-slate-300">Upload your kickoff photo.</p>
+              <input type="file" accept="image/*" onChange={(e) => setKickoffFile(e.target.files?.[0] ?? null)} />
+            </>
+          )}
+          <button className="btn w-full bg-emerald-500 text-black" onClick={handleSubmitKickoff}>Submit kickoff</button>
           {message ? <p className="font-semibold">{message}</p> : null}
+        </section>
+      ) : allCheckpointsDone ? (
+        <section className="card border border-emerald-600/50 bg-emerald-950/30 space-y-2">
+          <p className="text-xs uppercase text-emerald-300">Finish line</p>
+          <h2 className="text-2xl font-bold text-emerald-100">You made it to The Cabin!</h2>
+          <p className="text-sm text-emerald-100">
+            All checkpoints submitted. Find a WorkMoney host inside for the wrap-up and final reveal.
+          </p>
+          <p className="text-xs text-emerald-200">Total elapsed since kickoff: {elapsedMinutes} min · Score so far: {totalPoints}</p>
         </section>
       ) : activeCheckpoint ? (
         <section className="card space-y-3">
-          <p className="text-xs uppercase text-slate-400">{activeCheckpoint.public_checkpoint_label} · Route {team.routeCode}</p>
+          <p className="text-xs uppercase text-slate-400">{activeCheckpoint.order_index === checkpoints.length ? 'Final checkpoint' : `Checkpoint ${activeCheckpoint.order_index}`} · Route {team.routeCode}</p>
           <h2 className="text-xl font-semibold">Solve the clue to find your next stop</h2>
           <p className="text-slate-200">{activeCheckpoint.participant_clue_text}</p>
           <p className="text-sm text-amber-200">Task: {activeCheckpoint.participant_task_text_pre_solve}</p>
-          <p className="text-sm">Proof required: {activeCheckpoint.proof_type}</p>
+          <p className="text-sm">Proof required: {activeCheckpoint.proof_type === 'text' ? 'Text answer' : 'Photo'}</p>
 
           {activeCheckpoint.status === 'rejected' ? (
             <div className="rounded-lg border border-rose-600/40 bg-rose-950/40 p-3 text-sm text-rose-200">
-              <p>This proof was rejected by the host. Please upload a clearer proof for this checkpoint to continue.</p>
+              <p>This proof was rejected by the host. Please submit a clearer proof for this checkpoint to continue.</p>
             </div>
           ) : activeCheckpoint.status !== 'pending' ? (
             <div className="rounded-lg border border-emerald-600/40 bg-emerald-950/40 p-3 text-sm text-emerald-200">
@@ -299,9 +343,11 @@ export default function TeamPage() {
             </div>
           ) : null}
 
-          <input className="w-full rounded-lg p-3 text-black" placeholder="Optional note for host verification" value={answer} onChange={(e) => setAnswer(e.target.value)} />
-          <input type="file" accept="image/*,video/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-          <button className="btn w-full bg-emerald-500 text-black" onClick={() => handleSubmitProof(false)}>Upload proof (auto-advances next clue)</button>
+          <input className="w-full rounded-lg p-3 text-black" placeholder="Optional note or QR/answer text" value={answer} onChange={(e) => setAnswer(e.target.value)} />
+          {activeCheckpoint.proof_type === 'photo' ? (
+            <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+          ) : null}
+          <button className="btn w-full bg-emerald-500 text-black" onClick={handleSubmitCheckpoint}>Submit (auto-advances next clue)</button>
 
           <section className="rounded-lg border border-slate-700 p-3 space-y-2">
             <p className="text-sm font-semibold">GPS warmer/colder assist (optional)</p>
@@ -315,6 +361,12 @@ export default function TeamPage() {
       ) : (
         <section className="card">No active checkpoint. Final reveal mode is waiting for host confirmation.</section>
       )}
+
+      <section className="card space-y-1">
+        <p className="text-xs uppercase text-slate-400">Need help?</p>
+        <p className="text-sm text-slate-200"><strong>Carl Moczydlowsky</strong></p>
+        <a href="tel:+16192049010" className="text-sm text-emerald-300 underline underline-offset-2">619.204.9010</a>
+      </section>
     </main>
   )
 }

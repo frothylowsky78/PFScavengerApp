@@ -10,7 +10,7 @@ type TeamCheckpointRow = {
   participant_success_text_post_solve: string | null
   internal_location_name: string | null
   host_verification_task_text: string | null
-  proof_type: 'photo' | 'video'
+  proof_type: 'photo' | 'text'
   enable_gps: boolean
   latitude: number | null
   longitude: number | null
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
   if (team) {
     const { data: teamRow } = await supabase
       .from('teams')
-      .select('id, route_id, kickoff_challenge, name, code, routes(code)')
+      .select('id, route_id, kickoff_challenge, kickoff_proof_type, bus_start, name, code, routes(code)')
       .eq('code', team)
       .single()
 
@@ -84,7 +84,9 @@ export async function GET(request: NextRequest) {
         code: teamRow.code,
         name: teamRow.name,
         routeCode,
-        kickoffChallenge: teamRow.kickoff_challenge
+        kickoffChallenge: teamRow.kickoff_challenge,
+        kickoffProofType: (teamRow.kickoff_proof_type ?? 'photo') as 'photo' | 'text',
+        busStart: (teamRow.bus_start ?? null) as 'A' | 'B' | null
       },
       kickoff,
       checkpoints: safeCheckpoints,

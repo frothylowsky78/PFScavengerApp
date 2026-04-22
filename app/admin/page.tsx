@@ -4,6 +4,10 @@ import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getSupabaseServer } from '@/lib/supabase-server'
+import { TEAM_META } from '@/lib/team-meta'
+
+type TeamMeta = (typeof TEAM_META)[number]
+const TEAM_BY_CODE = new Map<string, TeamMeta>(TEAM_META.map((t) => [t.code as string, t]))
 
 const HOST_ADMIN_PASSWORD = 'JCP1234!'
 const HOST_ADMIN_COOKIE = 'pf_host_admin_auth'
@@ -90,7 +94,7 @@ export default async function AdminPage({
     return (
       <main className="min-h-screen p-4 max-w-md mx-auto">
         <section className="card space-y-3">
-          <h1 className="text-2xl font-bold">Host Dashboard Login</h1>
+          <h1 className="text-2xl font-bold">WorkMoney Park City · Host Login</h1>
           <p className="text-sm text-slate-300">Enter the host password to access admin controls.</p>
           {params?.error ? <p className="text-sm text-rose-300">Incorrect password. Please try again.</p> : null}
           <form action={authenticateHost} className="space-y-3">
@@ -112,7 +116,7 @@ export default async function AdminPage({
     return (
       <main className="min-h-screen p-4 max-w-3xl mx-auto">
         <section className="card">
-          <h1 className="text-2xl font-bold">Host Dashboard</h1>
+          <h1 className="text-2xl font-bold">WorkMoney Park City · Host Dashboard</h1>
           <p className="mt-2 text-slate-300">Missing Supabase environment variables. Add NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel project settings.</p>
         </section>
       </main>
@@ -163,19 +167,30 @@ export default async function AdminPage({
   return (
     <main className="min-h-screen p-4 max-w-3xl mx-auto space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold">Host Dashboard</h1>
+        <h1 className="text-3xl font-bold">WorkMoney Park City · Host</h1>
         <form action={logoutHost}><button className="btn bg-slate-700">Log out</button></form>
       </div>
       <section className="card overflow-x-auto">
         <h2 className="text-xl font-semibold mb-2">Live Leaderboard</h2>
         <table className="w-full text-sm">
-          <thead><tr><th className="text-left">Team</th><th>Route</th><th className="text-right">Points</th></tr></thead>
+          <thead><tr><th className="text-left">Team</th><th>Bus</th><th>Route</th><th className="text-right">Points</th></tr></thead>
           <tbody>
-            {leaderboard?.map((row) => (
-              <tr key={row.team_code}>
-                <td>{row.team_name}</td><td className="text-center">{row.route_code}</td><td className="text-right">{row.total_points}</td>
-              </tr>
-            ))}
+            {leaderboard?.map((row) => {
+              const meta = TEAM_BY_CODE.get(row.team_code as string)
+              return (
+                <tr key={row.team_code}>
+                  <td>
+                    <span className="inline-flex items-center gap-2">
+                      <span className="inline-block h-3 w-3 rounded-full border border-slate-600" style={{ backgroundColor: meta?.hex ?? '#64748b' }} aria-hidden />
+                      {row.team_name}
+                    </span>
+                  </td>
+                  <td className="text-center">{meta?.busStart ?? '—'}</td>
+                  <td className="text-center">{row.route_code}</td>
+                  <td className="text-right">{row.total_points}</td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </section>
@@ -194,6 +209,12 @@ export default async function AdminPage({
             </div>
           </div>
         ))}
+      </section>
+
+      <section className="card space-y-1">
+        <p className="text-xs uppercase text-slate-400">Need help?</p>
+        <p className="text-sm text-slate-200"><strong>Carl Moczydlowsky</strong></p>
+        <a href="tel:+16192049010" className="text-sm text-emerald-300 underline underline-offset-2">619.204.9010</a>
       </section>
 
       <section className="card space-y-3">
