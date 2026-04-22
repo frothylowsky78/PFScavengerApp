@@ -5,7 +5,7 @@
 -- clue data is rich and kept in one place in TypeScript.
 --
 -- Order of operations for a fresh Supabase project:
---   1. Run migrations 001 → 006 in the SQL editor.
+--   1. Run migrations 001 → 007 in the SQL editor.
 --   2. Run this file in the SQL editor (resets + seeds teams/routes).
 --   3. From a local clone with .env.local set: `npm run seed` to populate
 --      checkpoints for all six routes.

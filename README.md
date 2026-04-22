@@ -42,6 +42,7 @@ Mobile-first scavenger hunt web app for the WorkMoney Park City corporate event,
    - `supabase/migrations/004_clue_difficulty.sql`
    - `supabase/migrations/005_team_devices.sql`
    - `supabase/migrations/006_workmoney_park_city.sql`
+   - `supabase/migrations/007_checkpoint_is_final.sql`
 5. Bootstrap routes/teams/kickoff baseline (in Supabase SQL editor):
    - `supabase/seed_full.sql`
 6. Seed checkpoints:

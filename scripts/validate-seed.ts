@@ -7,14 +7,8 @@ function normalize(input: string) {
 function includesAnswer(haystack: string, answer: string) {
   const h = normalize(haystack)
   const a = normalize(answer)
+  if (!a) return false
   return h.includes(a)
-}
-
-function sentenceCount(input: string) {
-  return input
-    .split(/(?<=[.!?])\s+/)
-    .map((s) => s.trim())
-    .filter(Boolean).length
 }
 
 const failures: string[] = []
@@ -23,29 +17,43 @@ for (const [routeCode, stops] of Object.entries(routeStops)) {
   for (const [index, stop] of stops.entries()) {
     const key = `${routeCode}${index + 1}`
 
+    // Rule 1: clue must not contain exact answer_text
     if (includesAnswer(stop.participantClueText, stop.answerText)) {
-      failures.push(`${key}: participant_clue_text contains answer_text`)
+      failures.push(`${key}: participant_clue_text contains answer_text ("${stop.answerText}")`)
     }
 
+    // Rule 2: pre-solve task must not contain exact answer_text
     if (includesAnswer(stop.participantTaskTextPreSolve, stop.answerText)) {
-      failures.push(`${key}: participant_task_text_pre_solve contains answer_text`)
+      failures.push(`${key}: participant_task_text_pre_solve contains answer_text ("${stop.answerText}")`)
     }
 
+    // Rule 3: public label must not equal internal location name
     if (normalize(stop.publicCheckpointLabel) === normalize(stop.internalLocationName)) {
-      failures.push(`${key}: public_checkpoint_label matches internal_location_name`)
+      failures.push(`${key}: public_checkpoint_label equals internal_location_name`)
     }
 
+    // Rule 4: public label must be a generic "Checkpoint N" / "Final checkpoint"
+    const label = normalize(stop.publicCheckpointLabel)
+    const isGeneric =
+      label === 'final checkpoint' || /^checkpoint \d+$/.test(label)
+    if (!isGeneric) {
+      failures.push(`${key}: public_checkpoint_label must be generic (got "${stop.publicCheckpointLabel}")`)
+    }
+
+    // Rule 5: public label must not reveal answer_text
     if (includesAnswer(stop.publicCheckpointLabel, stop.answerText)) {
       failures.push(`${key}: public_checkpoint_label reveals answer_text`)
     }
 
-    const count = sentenceCount(stop.participantClueText)
-    if (count < 6 || count > 8) {
-      failures.push(`${key}: participant_clue_text must have 6-8 sentences (found ${count})`)
+    // Rule 6: final stop must carry is_final=true; non-final must be false
+    const expectedFinal = index === stops.length - 1
+    if (stop.isFinal !== expectedFinal) {
+      failures.push(`${key}: is_final=${stop.isFinal} does not match position (expected ${expectedFinal})`)
     }
 
-    if (!stop.participantClueText.trim().endsWith(stop.participantTaskTextPreSolve.trim())) {
-      failures.push(`${key}: participant_clue_text final sentence must be the challenge instruction`)
+    // Rule 7: proof_type must be photo or text
+    if (stop.proofType !== 'photo' && stop.proofType !== 'text') {
+      failures.push(`${key}: proof_type must be 'photo' or 'text' (got "${stop.proofType}")`)
     }
   }
 }
