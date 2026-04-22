@@ -8,7 +8,7 @@ export default function HomePage() {
         <Image src="/TrailSignLogo.png" alt="WorkMoney Park City" width={600} height={300} className="w-full h-auto bg-white rounded-xl p-2" priority />
         <p className="text-xs uppercase tracking-wider text-emerald-300 mt-3">Hosted by Jen Carpenter Productions</p>
         <h1 className="text-2xl font-bold mt-1">WorkMoney Park City Scavenger Hunt</h1>
-        <p className="text-slate-300 mt-2">Two buses depart Main Street · Solve the clues to reveal your final stop</p>
+        <p className="text-slate-300 mt-2">Solve the clues to reveal your final stop</p>
       </header>
 
       <section className="card space-y-3">
