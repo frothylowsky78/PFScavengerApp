@@ -293,7 +293,7 @@ export const routeStops: Record<string, SeedStop[]> = {
       internalLocationName: 'Main Street staircase connection',
       answerText: 'staircase',
       participantClueText: 'Park City doesn’t always move flat. Find the connection that climbs between levels.',
-      participantTaskTextPreSolve: 'Take a team photo proving you found the staircase checkpoint.',
+      participantTaskTextPreSolve: 'Take a team photo proving you found this between-levels checkpoint.',
       hostVerificationTaskText: 'Team photo on a Main Street staircase connection.',
       proofType: 'photo',
       points: 10,

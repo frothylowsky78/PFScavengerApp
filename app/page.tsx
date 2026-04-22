@@ -8,7 +8,7 @@ export default function HomePage() {
         <Image src="/TrailSignLogo.png" alt="WorkMoney Park City" width={600} height={300} className="w-full h-auto bg-white rounded-xl p-2" priority />
         <p className="text-xs uppercase tracking-wider text-emerald-300 mt-3">Hosted by Jen Carpenter Productions</p>
         <h1 className="text-2xl font-bold mt-1">WorkMoney Park City Scavenger Hunt</h1>
-        <p className="text-slate-300 mt-2">Two buses depart Main Street · Every route ends at The Cabin</p>
+        <p className="text-slate-300 mt-2">Two buses depart Main Street · Solve the clues to reveal your final stop</p>
       </header>
 
       <section className="card space-y-3">
@@ -20,7 +20,7 @@ export default function HomePage() {
           <li>After kickoff, solve each clue and submit proof at every checkpoint to unlock the next clue.</li>
           <li>All proofs are <strong>photo or text only</strong>. No video — cell data in town can be slow.</li>
           <li>Use the optional <strong>GPS warmer/colder</strong> hint if your team gets stuck.</li>
-          <li>Finish at <strong>The Cabin</strong>. A WorkMoney host will meet you at the door.</li>
+          <li>Finish at the final checkpoint once it’s revealed. A WorkMoney host will meet you at the door.</li>
         </ol>
         <p className="text-xs text-slate-400">Tip: Assign roles (navigator, clue reader, photographer, uploader) so your team moves faster.</p>
       </section>

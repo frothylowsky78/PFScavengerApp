@@ -12,7 +12,7 @@ type DeviceClaim =
 
 function getOrCreateDeviceId(): string {
   if (typeof window === 'undefined') return ''
-  const key = 'pf-scavenger-device-id'
+  const key = 'workmoney-scavenger-device-id'
   const existing = window.localStorage.getItem(key)
   if (existing) return existing
   const fresh =
