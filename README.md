@@ -1,27 +1,29 @@
-# Powerflex French Quarter Scavenger Hunt
+# WorkMoney Park City Scavenger Hunt
 
-Production-ready, mobile-first scavenger hunt web app for a live corporate event.
+Mobile-first scavenger hunt web app for the WorkMoney Park City corporate event, hosted by Jen Carpenter Productions.
 
 ## Stack
-- Next.js 14 (App Router)
+- Next.js 15 (App Router)
 - Tailwind CSS
-- Supabase (Postgres + Storage + Realtime-compatible schema)
+- Supabase (Postgres + Storage)
 - Vercel deployment
 
 ## Features
-- Participant-first mobile UI with large buttons and color-coded teams
-- Team-specific route assignment and unique kickoff challenge support (step 0 gate)
-- Proof-driven checkpoint progression: teams upload proof to auto-advance while host scoring can run in parallel
-- Photo/video proof uploads to Supabase Storage bucket (`hunt-proofs`)
-- GPS warmer/colder hinting on active clue
-- Host/Admin dashboard for verification queue and leaderboard
-- Final destination built into route flow (Mulate's)
+- Participant-first mobile UI with large buttons and color-coded teams (10 teams)
+- Two bus starts (Upper Main / Lower Main) feeding into 6 routes (A–F)
+- Team-specific kickoff challenge (Step 0 gate); supports photo or text proofs
+- Proof-driven checkpoint progression: teams submit proof to auto-advance while host scoring runs in parallel
+- Hybrid unlock by QR or answer entry
+- Photo/text-only proofs (no video — built for spotty Park City cell data)
+- GPS warmer/colder hint on the active clue
+- One active phone per team (device claim with takeover)
+- Host/Admin dashboard for verification queue and live leaderboard
+- All routes finish at The Cabin
 
-## Event defaults included
-- 9 teams and route assignment exactly as provided
-- 6 routes (A-F)
-- Seeded route checkpoints with anti-reveal participant clues and host verification instructions
-- 75-minute game model from NOPSI Hotel to Mulate's
+## Event defaults
+- 10 teams across 2 buses
+- 6 routes (A–F), 5 stops each, all ending at The Cabin
+- Seeded with anti-reveal participant clues and host verification instructions
 
 ## Local setup
 1. Install dependencies:
@@ -39,18 +41,24 @@ Production-ready, mobile-first scavenger hunt web app for a live corporate event
    - `supabase/migrations/003_checkpoint_content_split.sql`
    - `supabase/migrations/004_clue_difficulty.sql`
    - `supabase/migrations/005_team_devices.sql`
-5. Validate anti-reveal content rules:
-   ```bash
-   npm run validate:anti-reveal
-   ```
-6. Seed data:
+   - `supabase/migrations/006_workmoney_park_city.sql`
+5. Bootstrap routes/teams/kickoff baseline (in Supabase SQL editor):
+   - `supabase/seed_full.sql`
+6. Seed checkpoints:
    ```bash
    npm run seed
    ```
-7. Start dev server:
+7. Validate anti-reveal content rules:
+   ```bash
+   npm run validate:anti-reveal
+   ```
+8. Start dev server:
    ```bash
    npm run dev
    ```
+
+## Logo asset
+Drop `TrailSignLogo.png` into `/public/` before deploying. The home page references `/TrailSignLogo.png`.
 
 ## Deploy to Vercel
 1. Push repo to GitHub.
@@ -59,23 +67,12 @@ Production-ready, mobile-first scavenger hunt web app for a live corporate event
 4. Set build command to `npm run build` (default) and output defaults.
 5. Deploy.
 
-
-## Vercel deploy warning notes
-- NPM deprecation lines for transitive packages (e.g., `inflight`, `rimraf`, `glob`) are warnings, not immediate build failures.
-- This repo pins patched Next.js and matching eslint config to reduce security/deprecation noise in fresh deploys.
-- If warnings still appear, redeploy after clearing build cache in Vercel and ensure lockfile is regenerated from latest `package.json`.
-
-## Supabase notes
-- The migration creates core tables and views:
-  - `routes`, `teams`, `checkpoints`, `team_progress`
-  - `leaderboard_view`, `pending_submissions_view`
-- Bucket `hunt-proofs` is created as public for fast field uploads.
-- Host verification is optional per checkpoint, and used mainly for score validation/edge cases.
+## Support contact
+- Carl Moczydlowsky · 619.204.9010
 
 ## Recommended production hardening
-- Add host auth (Supabase Auth + Row Level Security policies)
+- Add host auth via Supabase Auth + Row Level Security
 - Add signed upload URLs + file size limits by role
 - Add rate limits on unlock/upload endpoints
 - Enable realtime subscription for live auto-refresh leaderboard
 - Add stronger upload abuse protections and moderation tooling
-

@@ -43,13 +43,17 @@ export async function POST(request: NextRequest) {
   }
 
   if (isKickoff) {
+    const answerText = answer.trim() || null
+    if (!proofUrl && !answerText) {
+      return NextResponse.json({ message: 'Submit a photo or enter your text answer to complete kickoff.' }, { status: 400 })
+    }
     const { data: existing } = await supabase.from('kickoff_progress').select('id').eq('team_id', team.id).maybeSingle()
     if (existing) {
-      await supabase.from('kickoff_progress').update({ proof_url: proofUrl, status: 'submitted', completed_at: new Date().toISOString() }).eq('id', existing.id)
+      await supabase.from('kickoff_progress').update({ proof_url: proofUrl, answer_text: answerText, status: 'submitted', completed_at: new Date().toISOString() }).eq('id', existing.id)
     } else {
-      await supabase.from('kickoff_progress').insert({ team_id: team.id, proof_url: proofUrl, status: 'submitted', completed_at: new Date().toISOString(), points_awarded: 10 })
+      await supabase.from('kickoff_progress').insert({ team_id: team.id, proof_url: proofUrl, answer_text: answerText, status: 'submitted', completed_at: new Date().toISOString(), points_awarded: 10 })
     }
-    return NextResponse.json({ message: 'Kickoff proof uploaded. Route unlocked!' })
+    return NextResponse.json({ message: 'Kickoff submitted. Route unlocked!' })
   }
 
   const { data: existing } = await supabase.from('team_progress').select('id').eq('team_id', team.id).eq('checkpoint_id', checkpointId).maybeSingle()

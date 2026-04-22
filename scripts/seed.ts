@@ -5,15 +5,29 @@ import { TEAM_META } from '../lib/team-meta'
 export const routeCodes = ['A', 'B', 'C', 'D', 'E', 'F']
 
 export const kickoffChallenges: Record<string, string> = {
-  pink: 'Find the vintage NOPSI generator sculpture in the lobby and take a team selfie.',
-  red: 'Ask a hotel staff member for their favorite New Orleans restaurant and record the answer.',
-  yellow: 'Take a photo of something gold or brass inside NOPSI.',
-  purple: 'Create a quick 5-second jazz pose video in the lobby.',
-  green: 'Find a plant or greenery inside or just outside the hotel and take a team photo.',
-  silver: 'Find something metallic or reflective in the lobby and snap a photo.',
-  black: 'Take a dramatic film-noir style photo in the NOPSI entrance.',
-  white: 'Take a bright group selfie under the lobby lights.',
-  blue: 'Find something blue in the lobby or a street sign outside and photograph it.'
+  pink: 'Find skis or a snowboard (real or decorative) and take a team selfie.',
+  red: 'Ask a local for their favorite ski run and enter the answer in text.',
+  yellow: 'Find something gold or shiny in a storefront and photograph it.',
+  purple: 'Do a ski pose as a group and submit a photo.',
+  green: 'Find a pine tree or greenery and take a team photo.',
+  silver: 'Find something metallic or reflective and photograph it.',
+  black: 'Take a dramatic "film noir ski town" photo.',
+  white: 'Take a bright snow-style group selfie.',
+  blue: 'Find something blue on Main Street and photograph it.',
+  gold: 'Find something that shines or reflects light and take a team photo capturing that "golden moment."'
+}
+
+export const kickoffProofTypes: Record<string, 'photo' | 'text'> = {
+  pink: 'photo',
+  red: 'text',
+  yellow: 'photo',
+  purple: 'photo',
+  green: 'photo',
+  silver: 'photo',
+  black: 'photo',
+  white: 'photo',
+  blue: 'photo',
+  gold: 'photo'
 }
 
 export type SeedStop = {
@@ -24,7 +38,7 @@ export type SeedStop = {
   participantTaskTextPreSolve: string
   participantSuccessTextPostSolve: string
   hostVerificationTaskText: string
-  proofType: 'photo' | 'video'
+  proofType: 'photo' | 'text'
   points: number
   lat: number
   lng: number
@@ -36,121 +50,294 @@ function buildClue(lines: string[], finalChallengeSentence: string) {
 }
 
 const locationClues = {
-  lafayette: (task: string) => buildClue([
-    'Begin where office towers give way to a patch of green that feels older than the surrounding glass and traffic.',
-    'Large oaks cast shade over lunch crowds while a raised monument anchors the center of the grounds.',
-    'This stop honors a French military ally tied to early American independence.',
-    'Stand where business district rush slows into a pocket of benches, iron fencing, and open lawn.',
-    'If you can see a formal civic corridor nearby, you are in the right zone.'
+  egyptianTheatre: (task: string) => buildClue([
+    "Find the historic Upper Main Street venue famous for its ornate façade and classic marquee.",
+    "During the region's biggest winter film festival this block is crowded with press and moviegoers.",
+    "The building has stood since the 1920s and is a repeat stop for cinema premieres.",
+    "A bright lit sign overhead spells out films and events and is visible from blocks away.",
+    "The front sidewalk is often the busiest photo corner at the top of Main.",
+    "If you see a neon marquee over an art-deco storefront you are in the right spot."
   ], task),
-  nightlifeCorridor: (task: string) => buildClue([
-    'Head toward the Quarter corridor where balconies stack high and sound spills into the street day and night.',
-    'Neon, live bands, and dense foot traffic make this one of the city’s most photographed stretches.',
-    'You are looking for the most famous party spine in the neighborhood, not the refined arts blocks nearby.',
-    'Keep moving until the energy is unmistakably loud and theatrical.',
-    'Street signs here are often snapped by visitors proving they made it to this iconic zone.'
+  pcMuseum: (task: string) => buildClue([
+    "Look for the historic mid-Main building that preserves the town's mining and ski heritage.",
+    "Its basement once served as the territorial jail and now displays the original iron cells.",
+    "A prominent vintage sign anchors its sidewalk entrance along the busiest block.",
+    "Exhibits trace the city's silver-boom era up through modern ski culture.",
+    "School groups and tourists alternate through the doors almost every hour.",
+    "Look for a brick façade that doubles as a walking-tour anchor."
   ], task),
-  jackson: (task: string) => buildClue([
-    'Find the public plaza where painters line the perimeter and portrait artists call out to passersby.',
-    'Iron fencing frames open space while cathedral towers dominate the skyline behind it.',
-    'A mounted historical figure stands watch over the center and appears in countless travel photos.',
-    'This is one of the strongest visual crossroads of history, art, and tourism in the Quarter.',
-    'If street performers, open-air artwork, and church spires all appear together, you are close.'
+  townLift: (task: string) => buildClue([
+    "Find the base of the ski lift that rises right off the city's main street.",
+    "Skiers drop in from the mountain here all winter and load straight back up.",
+    "A wide plaza of benches and ski racks sits below the lift towers.",
+    "Look for cables that climb sharply above storefronts toward the resort above.",
+    "The location is a natural transit point between downtown and the mountain.",
+    "If you can see chairlift cars and orange loading signs you are there."
   ], task),
-  sugarCoffee: (task: string) => buildClue([
-    'Follow the aroma of chicory coffee and sweet fried dough dusted in white sugar.',
-    'Tables turn quickly here as people compare powdered-sugar smiles and napkin disasters.',
-    'The stop sits near major Quarter footpaths and is almost always buzzing from morning through night.',
-    'You are searching for a long-running local ritual that visitors treat like a required pilgrimage.',
-    'Look for lines, green-and-white visual cues, and people balancing paper bags with warm pastries.'
+  highWest: (task: string) => buildClue([
+    "Find the former livery-barn building that now houses a well-known distillery just off the main strip.",
+    "The exterior still carries its wooden barn shape, with large doors and rustic timber siding.",
+    "A black metal sign above the entrance advertises small-batch whiskey made in town.",
+    "Even when the venue is closed, the building's exterior is a common backdrop for winter photos.",
+    "It sits at a corner where foot traffic splits between residential blocks and Main.",
+    "The building history traces back more than a century."
   ], task),
-  finalDanceHall: (task: string) => buildClue([
-    'Your finish is beyond the French Quarter, where the streets widen and old warehouse blocks replace the tight tourist maze.',
-    'This last stop is known as the original Cajun restaurant, a high-energy place where Louisiana flavor, live music, and dancing come together under one roof.',
-    'Look near the Convention Center for a destination that feels more like a Cajun party than a quiet dinner.',
-    'If you are still in balcony-lined Quarter streets, keep going.',
-    'If you are along the water or at the Outlets, you have gone too far.'
+  theCabin: (task: string) => buildClue([
+    "Your finish is the private venue booked for tonight's WorkMoney celebration in Park City.",
+    "Look beyond the storefronts for a stand-alone wood-structure event space prepared for the group.",
+    "Staff and signage on site will confirm you have reached the right door.",
+    "This stop is not a public landmark — follow the last clue and the host directions carefully.",
+    "The arrival point is close to Main Street but set slightly apart from the retail row.",
+    "If you see WorkMoney banners and event staff you are at the right door."
   ], task),
-  canal: (task: string) => buildClue([
-    'Start on the broad downtown edge where the Quarter begins and movement channels in multiple directions.',
-    'Rails run through this corridor and transit is part of the visual identity from end to end.',
-    'You should notice a constant flow of riders, storefronts, and traffic converging in one linear spine.',
-    'This location feels more open and commercial than the narrower historic lanes nearby.',
-    'If you can spot track-based transport and heavy cross-city movement, you are on target.'
+  mainBridge: (task: string) => buildClue([
+    "Find the short bridge on the lower end of the main strip where water crosses beneath the roadway.",
+    "A small creek runs under the crossing and feeds through downtown on its way east.",
+    "Railings and interpretive plaques mark the span on both sides.",
+    "Foot traffic slows here because the view opens up and cars merge nearby.",
+    "In winter snow lines the banks and the water is a distinctive visual break.",
+    "If the roadway dips and you can look over a guardrail at moving water you are close."
   ], task),
-  royal: (task: string) => buildClue([
-    'Find the Quarter stretch known for galleries, antiques, and buskers rather than loud nightlife crowds.',
-    'Iron balconies and polished storefronts give the area a refined, curated feel.',
-    'Street musicians still animate the block, but the mood is more elegant than rowdy.',
-    'Window displays, art spaces, and collectors’ shops are strong visual markers here.',
-    'If the surroundings feel upscale and performance-driven without neon chaos, you are in the right corridor.'
+  riverhorse: (task: string) => buildClue([
+    "Look for the second-floor restaurant in a historic mid-Main building with a large brass-style sign.",
+    "The entrance is set off the sidewalk behind a stair-climb entryway.",
+    "The block faces the busiest restaurant corridor downtown and is often quieter during the day.",
+    "The façade mixes old-town brick with modern glass trim and outdoor lanterns.",
+    "It's part of a row of long-running upscale dining venues downtown.",
+    "If you see a tall brass name plate above a brick storefront you are in the right place."
   ], task),
-  flamingFountain: (task: string) => buildClue([
-    'Look for a tucked-away courtyard linked to a famous cocktail stop in the Quarter.',
-    'Inside, one feature is memorable because fire appears above water in the same focal point.',
-    'This isn’t a street-corner landmark, so you need to slip off the main path to locate it.',
-    'The atmosphere is photogenic, and often packed with visitors enjoying the weather and a Hurricane.',
-    'If your team enters a hidden patio and immediately knows it is iconic, you found the right place.'
+  swedeAlley: (task: string) => buildClue([
+    "Find the narrow parallel road that runs one block east of the main strip.",
+    "Service entrances, parking structures, and transit stops line this quieter route.",
+    "Buses and shuttles drop riders along its length throughout the day.",
+    "The alley is a local shortcut and often less congested than the primary street.",
+    "Look for transit shelters, garage entrances, and rear building doors.",
+    "If the storefronts all show back-facing sides and service doors you are on the right road."
   ], task),
-  gallier: (task: string) => buildClue([
-    'Head to a formal civic landmark on the major boulevard where parades and ceremonies often pass.',
-    'White columns and symmetrical architecture make this stop stand out from nearby modern facades.',
-    'The building reflects an older era of city governance and public display.',
-    'From the sidewalk, the frontage feels stately, open, and built for official gatherings.',
-    'You are seeking a classic municipal structure, not a retail or nightlife destination.'
+  atticus: (task: string) => buildClue([
+    "Find the independent coffee-and-bookshop tucked into a historic Main Street storefront.",
+    "A small chalkboard sign by the door typically lists the daily pour and featured reads.",
+    "Inside, locals camp with laptops while travelers linger over espresso.",
+    "Window displays mix new releases, used volumes, and regional titles.",
+    "Wooden shelves and a short front counter make it feel small but busy.",
+    "If a warm indie-shop atmosphere meets you through the door you are there."
   ], task),
-  frenchMarket: (task: string) => buildClue([
-    'Move toward the long commercial corridor where open-air stalls and vendor rows stretch block after block.',
-    'This area blends shopping, snacks, souvenirs, and constant pedestrian flow.',
-    'It feels historic but active, with changing displays and a market rhythm throughout the day.',
-    'You should see repeated booth-style setups instead of a single storefront destination.',
-    'If the scene looks like a continuous bazaar near the Quarter edge, you are in the correct zone.'
+  noName: (task: string) => buildClue([
+    "Find the weathered western-style saloon that anchors one of the busiest mid-Main blocks.",
+    "A large mounted bison head visible through the front windows is the unmistakable giveaway.",
+    "Carved wood, vintage signage, and a classic saloon doorway dominate the frontage.",
+    "It has long been a post-ski gathering spot and sidewalk photos are common here.",
+    "The building exterior is iconic even if you never step inside.",
+    "If the front of the building looks more like an Old West movie than a modern bar you are close."
+  ], task),
+  publicArt: (task: string) => buildClue([
+    "Find the free-standing public art piece installed along the main commercial strip.",
+    "Bronze or painted-steel work sits on a low base at the sidewalk edge.",
+    "It is positioned to catch foot-traffic photos and is often mistaken for decoration.",
+    "The work references local heritage and shows up on downtown walking tours.",
+    "It sits between two storefronts and is lit at night.",
+    "If a sidewalk sculpture stops you mid-stride you have found the checkpoint."
+  ], task),
+  staircase: (task: string) => buildClue([
+    "Find the set of concrete steps that connects the primary street to the parallel back road.",
+    "The staircase is narrow and built into the hillside between two buildings.",
+    "Handrails and signage mark both the top and the bottom landings.",
+    "Locals use it as a shortcut between shopping and transit blocks.",
+    "It is easy to miss from the main sidewalk but clearly marked once spotted.",
+    "If you find stairs joining two parallel blocks you are at the right crossing."
+  ], task),
+  topOfMain: (task: string) => buildClue([
+    "Reach the uppermost block of the main strip where the road ends at a small plaza.",
+    "From here the entire commercial corridor slopes down below you toward the valley.",
+    "Benches and a short rail section frame a classic Park City skyline photo.",
+    "Visitors often pause here for group portraits with the town spread out behind them.",
+    "The block is quieter than the mid-Main restaurant row.",
+    "If you are looking down the street and can see the whole strip you are at the right spot."
   ], task)
 }
 
+type StopDef = Omit<SeedStop, 'publicCheckpointLabel' | 'participantClueText' | 'points' | 'difficultyLevel'> & {
+  clueBuilder: (task: string) => string
+}
+
+type StopDefWithMeta = StopDef & {
+  points: number
+  difficultyLevel: 'medium' | 'hard'
+}
+
+function stop(
+  order: number,
+  totalStops: number,
+  def: StopDefWithMeta
+): SeedStop {
+  const isFinal = order === totalStops
+  return {
+    publicCheckpointLabel: isFinal ? 'Final checkpoint' : `Checkpoint ${order}`,
+    internalLocationName: def.internalLocationName,
+    answerText: def.answerText,
+    participantClueText: def.clueBuilder(def.participantTaskTextPreSolve),
+    participantTaskTextPreSolve: def.participantTaskTextPreSolve,
+    participantSuccessTextPostSolve: def.participantSuccessTextPostSolve,
+    hostVerificationTaskText: def.hostVerificationTaskText,
+    proofType: def.proofType,
+    points: def.points,
+    lat: def.lat,
+    lng: def.lng,
+    difficultyLevel: def.difficultyLevel
+  }
+}
+
+const defs = {
+  egyptianTheatre: {
+    internalLocationName: 'Egyptian Theatre',
+    answerText: 'pc101',
+    participantTaskTextPreSolve: 'Take a team photo under the marquee.',
+    participantSuccessTextPostSolve: 'Nice solve. Upload confirmed — keep moving.',
+    hostVerificationTaskText: 'Team photo under the Egyptian Theatre marquee.',
+    proofType: 'photo' as const,
+    lat: 40.6437, lng: -111.4965,
+    clueBuilder: locationClues.egyptianTheatre
+  },
+  pcMuseum: {
+    internalLocationName: 'Park City Museum',
+    answerText: 'pc102',
+    participantTaskTextPreSolve: 'Take a team photo at the front entrance sign.',
+    participantSuccessTextPostSolve: 'Solved. Keep your team moving.',
+    hostVerificationTaskText: 'Team photo by Park City Museum entrance sign.',
+    proofType: 'photo' as const,
+    lat: 40.6451, lng: -111.4970,
+    clueBuilder: locationClues.pcMuseum
+  },
+  townLift: {
+    internalLocationName: 'Town Lift',
+    answerText: 'pc103',
+    participantTaskTextPreSolve: 'Take a team photo with the lift cables visible overhead.',
+    participantSuccessTextPostSolve: 'Solved. Next clue unlocks on upload.',
+    hostVerificationTaskText: 'Team photo at Town Lift base with cables overhead.',
+    proofType: 'photo' as const,
+    lat: 40.6479, lng: -111.4974,
+    clueBuilder: locationClues.townLift
+  },
+  highWest: {
+    internalLocationName: 'High West Saloon exterior',
+    answerText: 'pc104',
+    participantTaskTextPreSolve: 'Take a team photo in front of the barn-style exterior.',
+    participantSuccessTextPostSolve: 'Solved. Keep moving to the finish.',
+    hostVerificationTaskText: 'Team photo at the High West barn exterior (venue closed — exterior only).',
+    proofType: 'photo' as const,
+    lat: 40.6420, lng: -111.4958,
+    clueBuilder: locationClues.highWest
+  },
+  theCabin: {
+    internalLocationName: 'The Cabin',
+    answerText: 'pc105',
+    participantTaskTextPreSolve: 'Take a team photo at the entrance of The Cabin to confirm your finish.',
+    participantSuccessTextPostSolve: 'Route complete. Welcome to The Cabin — find a WorkMoney host for the wrap-up.',
+    hostVerificationTaskText: 'Arrival team photo at The Cabin entrance.',
+    proofType: 'photo' as const,
+    lat: 40.6430, lng: -111.4950,
+    clueBuilder: locationClues.theCabin
+  },
+  mainBridge: {
+    internalLocationName: 'Main Street Bridge / creek crossing',
+    answerText: 'pc106',
+    participantTaskTextPreSolve: 'Take a team photo on the span with the creek visible.',
+    participantSuccessTextPostSolve: 'Solved. Keep your pace.',
+    hostVerificationTaskText: 'Team photo on the creek-crossing bridge.',
+    proofType: 'photo' as const,
+    lat: 40.6492, lng: -111.4984,
+    clueBuilder: locationClues.mainBridge
+  },
+  riverhorse: {
+    internalLocationName: 'Riverhorse on Main exterior',
+    answerText: 'pc107',
+    participantTaskTextPreSolve: 'Take a team photo at the building exterior and brass sign.',
+    participantSuccessTextPostSolve: 'Solved. Next clue is ready.',
+    hostVerificationTaskText: 'Team photo at Riverhorse on Main exterior (no interior required).',
+    proofType: 'photo' as const,
+    lat: 40.6472, lng: -111.4974,
+    clueBuilder: locationClues.riverhorse
+  },
+  swedeAlley: {
+    internalLocationName: 'Swede Alley',
+    answerText: 'pc108',
+    participantTaskTextPreSolve: 'Take a team photo on the alley with a transit shelter or street sign visible.',
+    participantSuccessTextPostSolve: 'Solved. Keep moving.',
+    hostVerificationTaskText: 'Team photo on Swede Alley, transit shelter or street sign visible.',
+    proofType: 'photo' as const,
+    lat: 40.6470, lng: -111.4965,
+    clueBuilder: locationClues.swedeAlley
+  },
+  atticus: {
+    internalLocationName: 'Atticus Coffee & Books',
+    answerText: 'pc109',
+    participantTaskTextPreSolve: 'Take a team photo at the storefront — exterior only, do not block traffic inside.',
+    participantSuccessTextPostSolve: 'Solved. Keep your team moving.',
+    hostVerificationTaskText: 'Team photo at Atticus storefront (exterior only).',
+    proofType: 'photo' as const,
+    lat: 40.6461, lng: -111.4971,
+    clueBuilder: locationClues.atticus
+  },
+  noName: {
+    internalLocationName: 'No Name Saloon exterior',
+    answerText: 'pc110',
+    participantTaskTextPreSolve: 'Take a team photo in front of the saloon exterior.',
+    participantSuccessTextPostSolve: 'Solved. Next clue unlocks.',
+    hostVerificationTaskText: 'Team photo at No Name Saloon exterior (no interior required).',
+    proofType: 'photo' as const,
+    lat: 40.6473, lng: -111.4975,
+    clueBuilder: locationClues.noName
+  },
+  publicArt: {
+    internalLocationName: 'Main Street public art sculpture',
+    answerText: 'pc111',
+    participantTaskTextPreSolve: 'Take a team photo with the sculpture clearly in frame.',
+    participantSuccessTextPostSolve: 'Solved. Keep moving.',
+    hostVerificationTaskText: 'Team photo with Main Street public art sculpture in frame.',
+    proofType: 'photo' as const,
+    lat: 40.6462, lng: -111.4970,
+    clueBuilder: locationClues.publicArt
+  },
+  staircase: {
+    internalLocationName: 'Main Street staircase connection',
+    answerText: 'pc112',
+    participantTaskTextPreSolve: 'Take a team photo on the staircase.',
+    participantSuccessTextPostSolve: 'Solved. Next checkpoint is ready.',
+    hostVerificationTaskText: 'Team photo on the Main-to-Swede staircase connector.',
+    proofType: 'photo' as const,
+    lat: 40.6470, lng: -111.4967,
+    clueBuilder: locationClues.staircase
+  },
+  topOfMain: {
+    internalLocationName: 'Top of Main Street viewpoint',
+    answerText: 'pc113',
+    participantTaskTextPreSolve: 'Take a team photo looking down the strip from the top-of-Main viewpoint.',
+    participantSuccessTextPostSolve: 'Solved. Keep your pace.',
+    hostVerificationTaskText: 'Team photo at the Top of Main Street viewpoint with the strip visible below.',
+    proofType: 'photo' as const,
+    lat: 40.6432, lng: -111.4960,
+    clueBuilder: locationClues.topOfMain
+  }
+} satisfies Record<string, StopDef>
+
+const points = [10, 10, 15, 15, 20]
+const difficulties: Array<'medium' | 'hard'> = ['medium', 'medium', 'hard', 'hard', 'medium']
+
+function route(defsInOrder: StopDef[]): SeedStop[] {
+  return defsInOrder.map((def, i) => stop(
+    i + 1,
+    defsInOrder.length,
+    { ...def, points: points[i], difficultyLevel: difficulties[i] }
+  ))
+}
+
 export const routeStops: Record<string, SeedStop[]> = {
-  A: [
-    { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Lafayette Square', answerText: 'lafayette square', participantTaskTextPreSolve: 'Take a team photo that clearly shows your group at the correct landmark area.', participantClueText: locationClues.lafayette('Take a team photo that clearly shows your group at the correct landmark area.'), participantSuccessTextPostSolve: 'Nice solve. Confirm your proof upload and keep moving.', hostVerificationTaskText: 'Team photo pointing dramatically at the central statue.', proofType: 'photo', points: 10, lat: 29.9496, lng: -90.0704, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: 'Bourbon Street Sign', answerText: 'bourbon street', participantTaskTextPreSolve: 'Take a team photo that clearly proves you reached the correct street checkpoint.', participantClueText: locationClues.nightlifeCorridor('Take a team photo that clearly proves you reached the correct street checkpoint.'), participantSuccessTextPostSolve: 'Checkpoint solved. Keep your pace and unlock the next clue.', hostVerificationTaskText: 'Team photo with a Bourbon Street sign.', proofType: 'photo', points: 10, lat: 29.9581, lng: -90.0656, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'Jackson Square', answerText: 'jackson square', participantTaskTextPreSolve: 'Take a team photo featuring the most recognizable historic element at this location.', participantClueText: locationClues.jackson('Take a team photo featuring the most recognizable historic element at this location.'), participantSuccessTextPostSolve: 'Great work. You solved this checkpoint.', hostVerificationTaskText: 'Team photo with Andrew Jackson visible.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623, difficultyLevel: 'hard' },
-    { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: 'Café du Monde', answerText: 'cafe du monde', participantTaskTextPreSolve: 'Take a photo proving your team completed the signature food-themed challenge at this stop.', participantClueText: locationClues.sugarCoffee('Take a photo proving your team completed the signature food-themed challenge at this stop.'), participantSuccessTextPostSolve: 'Solved. Upload confirmed—time for the final leg.', hostVerificationTaskText: 'Team photo showing a powdered sugar mustache.', proofType: 'photo', points: 15, lat: 29.9577, lng: -90.0621, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantClueText: locationClues.finalDanceHall('Record a 10-second celebration video at the final destination.'), participantSuccessTextPostSolve: 'Final checkpoint solved. Await host wrap-up.', hostVerificationTaskText: "10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703, difficultyLevel: 'medium' }
-  ],
-  B: [
-    { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Canal Street Streetcar', answerText: 'canal street', participantTaskTextPreSolve: 'Take a photo or action shot that proves you found the transit-themed checkpoint.', participantClueText: locationClues.canal('Take a photo or action shot that proves you found the transit-themed checkpoint.'), participantSuccessTextPostSolve: 'Solved. Keep moving to checkpoint 2.', hostVerificationTaskText: 'Photo of a moving streetcar on Canal Street.', proofType: 'photo', points: 10, lat: 29.9537, lng: -90.0716, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: 'Royal Street', answerText: 'royal street', participantTaskTextPreSolve: 'Capture a short video showing your team interacting with the artistic or musical energy of the location.', participantClueText: locationClues.royal('Capture a short video showing your team interacting with the artistic or musical energy of the location.'), participantSuccessTextPostSolve: 'Checkpoint solved. Unlock your next clue.', hostVerificationTaskText: 'Short video of a teammate dancing near a street musician.', proofType: 'video', points: 15, lat: 29.9589, lng: -90.0645, difficultyLevel: 'hard' },
-    { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'Jackson Square', answerText: 'jackson square', participantTaskTextPreSolve: 'Take a team photo featuring the most recognizable landmark element in the area.', participantClueText: locationClues.jackson('Take a team photo featuring the most recognizable landmark element in the area.'), participantSuccessTextPostSolve: 'Solved. Team is on track.', hostVerificationTaskText: 'Team photo with St. Louis Cathedral or Andrew Jackson statue visible.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623, difficultyLevel: 'hard' },
-    { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: "Pat O'Brien's Flaming Fountain", answerText: 'pat obrien', participantTaskTextPreSolve: 'Take a dramatic team photo proving you found the correct hidden courtyard feature.', participantClueText: locationClues.flamingFountain('Take a dramatic team photo proving you found the correct hidden courtyard feature.'), participantSuccessTextPostSolve: 'Solved. Final checkpoint ahead.', hostVerificationTaskText: 'Hurricane-style team pose around the flaming fountain.', proofType: 'photo', points: 15, lat: 29.9579, lng: -90.0653, difficultyLevel: 'hard' },
-    { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantClueText: locationClues.finalDanceHall('Record a 10-second celebration video at the final destination.'), participantSuccessTextPostSolve: 'Route complete. Await host confirmation.', hostVerificationTaskText: "10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703, difficultyLevel: 'medium' }
-  ],
-  C: [
-    { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Gallier Hall', answerText: 'gallier hall', participantTaskTextPreSolve: 'Take a team photo featuring the most recognizable architectural detail at this civic landmark.', participantClueText: locationClues.gallier('Take a team photo featuring the most recognizable architectural detail at this civic landmark.'), participantSuccessTextPostSolve: 'Great solve. Keep going.', hostVerificationTaskText: 'Team photo at Gallier Hall with column count visible or noted.', proofType: 'photo', points: 10, lat: 29.9516, lng: -90.0702, difficultyLevel: 'hard' },
-    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: 'Bourbon Street Sign', answerText: 'bourbon street', participantTaskTextPreSolve: 'Take a group photo that clearly proves your team reached the correct street checkpoint.', participantClueText: locationClues.nightlifeCorridor('Take a group photo that clearly proves your team reached the correct street checkpoint.'), participantSuccessTextPostSolve: 'Solved. Next clue unlocked soon.', hostVerificationTaskText: 'Group photo with a Bourbon Street sign.', proofType: 'photo', points: 10, lat: 29.9581, lng: -90.0656, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'Café du Monde', answerText: 'cafe du monde', participantTaskTextPreSolve: 'Take a photo proving your team completed the signature treat challenge at this stop.', participantClueText: locationClues.sugarCoffee('Take a photo proving your team completed the signature treat challenge at this stop.'), participantSuccessTextPostSolve: 'Solved. Keep your momentum.', hostVerificationTaskText: 'Photo showing beignet or powdered sugar evidence.', proofType: 'photo', points: 15, lat: 29.9577, lng: -90.0621, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: 'French Market', answerText: 'french market', participantTaskTextPreSolve: 'Take a team photo that clearly proves you found the market checkpoint.', participantClueText: locationClues.frenchMarket('Take a team photo that clearly proves you found the market checkpoint.'), participantSuccessTextPostSolve: 'Checkpoint solved. Final stop remains.', hostVerificationTaskText: 'Team photo with French Market sign or vendor stalls.', proofType: 'photo', points: 15, lat: 29.9615, lng: -90.0572, difficultyLevel: 'hard' },
-    { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantClueText: locationClues.finalDanceHall('Record a 10-second celebration video at the final destination.'), participantSuccessTextPostSolve: 'Route complete. Await host confirmation.', hostVerificationTaskText: "10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703, difficultyLevel: 'medium' }
-  ],
-  D: [
-    { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Canal Street', answerText: 'canal street', participantTaskTextPreSolve: 'Take a team photo that clearly shows the main corridor or movement feature of this checkpoint.', participantClueText: locationClues.canal('Take a team photo that clearly shows the main corridor or movement feature of this checkpoint.'), participantSuccessTextPostSolve: 'Solved. Keep moving.', hostVerificationTaskText: 'Team shot with Canal Street background.', proofType: 'photo', points: 10, lat: 29.9537, lng: -90.0716, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: "Pat O'Brien's Flaming Fountain", answerText: 'pat obrien', participantTaskTextPreSolve: 'Take a dramatic team photo proving you found the correct hidden courtyard feature.', participantClueText: locationClues.flamingFountain('Take a dramatic team photo proving you found the correct hidden courtyard feature.'), participantSuccessTextPostSolve: 'Solved. Next clue is ready.', hostVerificationTaskText: 'Storm-blown team pose around the flaming fountain.', proofType: 'photo', points: 15, lat: 29.9579, lng: -90.0653, difficultyLevel: 'hard' },
-    { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'Royal Street', answerText: 'royal street', participantTaskTextPreSolve: 'Film 5 seconds showing your team interacting with the arts or music energy of the location.', participantClueText: locationClues.royal('Film 5 seconds showing your team interacting with the arts or music energy of the location.'), participantSuccessTextPostSolve: 'Solved. Keep pace for a strong finish.', hostVerificationTaskText: '5-second jazz-hands video on Royal Street.', proofType: 'video', points: 15, lat: 29.9589, lng: -90.0645, difficultyLevel: 'hard' },
-    { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: 'Jackson Square', answerText: 'jackson square', participantTaskTextPreSolve: 'Take a photo featuring the most recognizable historic or visual element in the area.', participantClueText: locationClues.jackson('Take a photo featuring the most recognizable historic or visual element in the area.'), participantSuccessTextPostSolve: 'Checkpoint solved. Final checkpoint is next.', hostVerificationTaskText: 'Photo with cathedral or square fencing visible.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623, difficultyLevel: 'hard' },
-    { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantClueText: locationClues.finalDanceHall('Record a 10-second celebration video at the final destination.'), participantSuccessTextPostSolve: 'Route complete. Await host confirmation.', hostVerificationTaskText: "10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703, difficultyLevel: 'medium' }
-  ],
-  E: [
-    { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Lafayette Square', answerText: 'lafayette square', participantTaskTextPreSolve: 'Take a team photo featuring the most recognizable landmark element at this square.', participantClueText: locationClues.lafayette('Take a team photo featuring the most recognizable landmark element at this square.'), participantSuccessTextPostSolve: 'Solved. Keep your team moving.', hostVerificationTaskText: 'Team photo with the square and central statue area visible.', proofType: 'photo', points: 10, lat: 29.9496, lng: -90.0704, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: 'Royal Street', answerText: 'royal street', participantTaskTextPreSolve: 'Take a photo of the most elegant or distinctive visual detail at this location.', participantClueText: locationClues.royal('Take a photo of the most elegant or distinctive visual detail at this location.'), participantSuccessTextPostSolve: 'Solved. Keep going.', hostVerificationTaskText: 'Photo of an elegant balcony or storefront on Royal Street.', proofType: 'photo', points: 10, lat: 29.9589, lng: -90.0645, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'French Market', answerText: 'french market', participantTaskTextPreSolve: 'Take a group photo proving you found the open-air market checkpoint.', participantClueText: locationClues.frenchMarket('Take a group photo proving you found the open-air market checkpoint.'), participantSuccessTextPostSolve: 'Solved. One more clue before the finale.', hostVerificationTaskText: 'Group photo by French Market sign or vendor row.', proofType: 'photo', points: 15, lat: 29.9615, lng: -90.0572, difficultyLevel: 'hard' },
-    { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: 'Café du Monde', answerText: 'cafe du monde', participantTaskTextPreSolve: 'Take a photo proving your team completed the signature food challenge at this stop.', participantClueText: locationClues.sugarCoffee('Take a photo proving your team completed the signature food challenge at this stop.'), participantSuccessTextPostSolve: 'Solved. Final checkpoint remains.', hostVerificationTaskText: 'Photo showing powdered sugar mustache.', proofType: 'photo', points: 15, lat: 29.9577, lng: -90.0621, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantClueText: locationClues.finalDanceHall('Record a 10-second celebration video at the final destination.'), participantSuccessTextPostSolve: 'Route complete. Await host confirmation.', hostVerificationTaskText: "10-second Cajun two-step video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703, difficultyLevel: 'medium' }
-  ],
-  F: [
-    { publicCheckpointLabel: 'Checkpoint 1', internalLocationName: 'Royal Street', answerText: 'royal street', participantTaskTextPreSolve: 'Take a team photo that proves you found the arts-and-music checkpoint.', participantClueText: locationClues.royal('Take a team photo that proves you found the arts-and-music checkpoint.'), participantSuccessTextPostSolve: 'Checkpoint solved. Continue to the next clue.', hostVerificationTaskText: 'Team photo with street musician or gallery sign on Royal Street.', proofType: 'photo', points: 10, lat: 29.9589, lng: -90.0645, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Checkpoint 2', internalLocationName: 'Jackson Square', answerText: 'jackson square', participantTaskTextPreSolve: 'Take a team photo featuring the most recognizable landmark element in the area.', participantClueText: locationClues.jackson('Take a team photo featuring the most recognizable landmark element in the area.'), participantSuccessTextPostSolve: 'Solved. Keep moving.', hostVerificationTaskText: 'Team photo with St. Louis Cathedral visible.', proofType: 'photo', points: 15, lat: 29.9574, lng: -90.0623, difficultyLevel: 'hard' },
-    { publicCheckpointLabel: 'Checkpoint 3', internalLocationName: 'Café du Monde', answerText: 'cafe du monde', participantTaskTextPreSolve: 'Take a photo proving your team completed the signature treat challenge at this stop.', participantClueText: locationClues.sugarCoffee('Take a photo proving your team completed the signature treat challenge at this stop.'), participantSuccessTextPostSolve: 'Checkpoint solved. Keep pace.', hostVerificationTaskText: 'Photo of powdered sugar mustache.', proofType: 'photo', points: 15, lat: 29.9577, lng: -90.0621, difficultyLevel: 'medium' },
-    { publicCheckpointLabel: 'Checkpoint 4', internalLocationName: 'French Market', answerText: 'french market', participantTaskTextPreSolve: 'Take a group photo proving you found the market checkpoint.', participantClueText: locationClues.frenchMarket('Take a group photo proving you found the market checkpoint.'), participantSuccessTextPostSolve: 'Solved. Final checkpoint remains.', hostVerificationTaskText: 'Group photo near the French Market sign.', proofType: 'photo', points: 15, lat: 29.9615, lng: -90.0572, difficultyLevel: 'hard' },
-    { publicCheckpointLabel: 'Final checkpoint', internalLocationName: "Mulate's", answerText: 'mulates', participantTaskTextPreSolve: 'Record a 10-second celebration video at the final destination.', participantClueText: locationClues.finalDanceHall('Record a 10-second celebration video at the final destination.'), participantSuccessTextPostSolve: 'Route complete. Await host confirmation.', hostVerificationTaskText: "Cajun dance video at Mulate's.", proofType: 'video', points: 20, lat: 29.9435, lng: -90.0703, difficultyLevel: 'medium' }
-  ]
+  A: route([defs.egyptianTheatre, defs.pcMuseum, defs.townLift, defs.highWest, defs.theCabin]),
+  B: route([defs.mainBridge, defs.riverhorse, defs.swedeAlley, defs.townLift, defs.theCabin]),
+  C: route([defs.atticus, defs.noName, defs.publicArt, defs.pcMuseum, defs.theCabin]),
+  D: route([defs.swedeAlley, defs.staircase, defs.egyptianTheatre, defs.highWest, defs.theCabin]),
+  E: route([defs.topOfMain, defs.publicArt, defs.atticus, defs.mainBridge, defs.theCabin]),
+  F: route([defs.noName, defs.townLift, defs.pcMuseum, defs.riverhorse, defs.theCabin])
 }
 
 async function run() {
@@ -167,11 +354,13 @@ async function run() {
       name: team.name,
       color_hex: team.hex,
       route_id: routeIdByCode[team.routeCode],
-      kickoff_challenge: kickoffChallenges[team.code]
+      kickoff_challenge: kickoffChallenges[team.code],
+      kickoff_proof_type: kickoffProofTypes[team.code],
+      bus_start: team.busStart
     }, { onConflict: 'code' }).select('id').single()
 
     if (data?.id) {
-      await supabase.from('kickoff_progress').upsert({ team_id: data.id, status: 'pending', points_awarded: 10, proof_url: null, completed_at: null }, { onConflict: 'team_id' })
+      await supabase.from('kickoff_progress').upsert({ team_id: data.id, status: 'pending', points_awarded: 10, proof_url: null, answer_text: null, completed_at: null }, { onConflict: 'team_id' })
     }
   }
 
@@ -179,28 +368,28 @@ async function run() {
     const routeId = routeIdByCode[code]
     await supabase.from('checkpoints').delete().eq('route_id', routeId)
 
-    for (const [index, stop] of routeStops[code].entries()) {
+    for (const [index, s] of routeStops[code].entries()) {
       await supabase.from('checkpoints').insert({
         route_id: routeId,
         order_index: index + 1,
-        title: stop.internalLocationName,
-        clue_text: stop.participantClueText,
-        task_text: stop.participantTaskTextPreSolve,
-        unlock_answer: stop.answerText,
-        answer_text: stop.answerText,
+        title: s.internalLocationName,
+        clue_text: s.participantClueText,
+        task_text: s.participantTaskTextPreSolve,
+        unlock_answer: s.answerText,
+        answer_text: s.answerText,
         unlock_qr: `QR-${code}-${index + 1}`,
-        latitude: stop.lat,
-        longitude: stop.lng,
+        latitude: s.lat,
+        longitude: s.lng,
         enable_gps: true,
-        proof_type: stop.proofType,
-        points: stop.points,
-        public_checkpoint_label: stop.publicCheckpointLabel,
-        participant_clue_text: stop.participantClueText,
-        participant_task_text_pre_solve: stop.participantTaskTextPreSolve,
-        participant_success_text_post_solve: stop.participantSuccessTextPostSolve,
-        internal_location_name: stop.internalLocationName,
-        host_verification_task_text: stop.hostVerificationTaskText,
-        difficulty_level: stop.difficultyLevel
+        proof_type: s.proofType,
+        points: s.points,
+        public_checkpoint_label: s.publicCheckpointLabel,
+        participant_clue_text: s.participantClueText,
+        participant_task_text_pre_solve: s.participantTaskTextPreSolve,
+        participant_success_text_post_solve: s.participantSuccessTextPostSolve,
+        internal_location_name: s.internalLocationName,
+        host_verification_task_text: s.hostVerificationTaskText,
+        difficulty_level: s.difficultyLevel
       })
     }
   }
