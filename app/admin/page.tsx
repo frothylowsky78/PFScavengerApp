@@ -140,7 +140,11 @@ export default async function AdminPage({
   const supabase = getSupabaseServer()
   const [{ data: leaderboard }, { data: submissions }, { data: checkpointReviewed }, { data: kickoffReviewed }] = await Promise.all([
     supabase.from('leaderboard_view').select('*').order('total_points', { ascending: false }),
-    supabase.from('pending_submissions_view').select('*').limit(100),
+    supabase
+      .from('pending_submissions_view')
+      .select('progress_id,submission_type,team_name,checkpoint_title,answer_text,host_verification_task_text,proof_url,created_at')
+      .order('created_at', { ascending: true })
+      .limit(100),
     supabase
       .from('team_progress')
       .select('id,status,proof_url,updated_at,teams(name),checkpoints(internal_location_name)')
@@ -178,6 +182,15 @@ export default async function AdminPage({
     })))
   ].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
 
+  const EPOCH_ISO = '1970-01-01T00:00:00+00:00'
+  const sortedLeaderboard = [...(leaderboard ?? [])].sort((a, b) => {
+    const pointsDiff = Number(b.total_points ?? 0) - Number(a.total_points ?? 0)
+    if (pointsDiff !== 0) return pointsDiff
+    const aTime = new Date((a.last_verified_at as string) ?? EPOCH_ISO).getTime()
+    const bTime = new Date((b.last_verified_at as string) ?? EPOCH_ISO).getTime()
+    return aTime - bTime
+  })
+
   return (
     <main className="min-h-screen p-4 max-w-3xl mx-auto space-y-4">
       <div className="flex items-center justify-between gap-3">
@@ -187,10 +200,14 @@ export default async function AdminPage({
       <section className="card overflow-x-auto">
         <h2 className="text-xl font-semibold mb-2">Live Leaderboard</h2>
         <table className="w-full text-sm">
-          <thead><tr><th className="text-left">Team</th><th>Bus</th><th>Route</th><th className="text-right">Points</th></tr></thead>
+          <thead><tr><th className="text-left">Team</th><th>Bus</th><th>Route</th><th className="text-right">Points</th><th className="text-right">Finished</th></tr></thead>
           <tbody>
-            {leaderboard?.map((row) => {
+            {sortedLeaderboard.map((row) => {
               const meta = TEAM_BY_CODE.get(row.team_code as string)
+              const lastVerified = row.last_verified_at as string | null
+              const finishedLabel = lastVerified && new Date(lastVerified).getTime() > new Date(EPOCH_ISO).getTime()
+                ? new Date(lastVerified).toLocaleTimeString()
+                : '—'
               return (
                 <tr key={row.team_code}>
                   <td>
@@ -202,6 +219,7 @@ export default async function AdminPage({
                   <td className="text-center">{meta?.busStart ?? '—'}</td>
                   <td className="text-center">{row.route_code}</td>
                   <td className="text-right">{row.total_points}</td>
+                  <td className="text-right">{finishedLabel}</td>
                 </tr>
               )
             })}
