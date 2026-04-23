@@ -4,6 +4,21 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { TEAM_META, BUS_STARTS, type BusStartCode } from '@/lib/team-meta'
 
+const SAFE_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+
+async function normalizeImage(file: File): Promise<File> {
+  if (SAFE_MIME.has(file.type)) return file
+  const name = file.name.toLowerCase()
+  const isHeic = file.type === 'image/heic' || file.type === 'image/heif' ||
+                 name.endsWith('.heic') || name.endsWith('.heif')
+  if (!isHeic) return file
+  const heic2any = (await import('heic2any')).default
+  const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.85 })
+  const out = Array.isArray(blob) ? blob[0] : blob
+  const newName = file.name.replace(/\.(heic|heif)$/i, '') + '.jpg'
+  return new File([out], newName, { type: 'image/jpeg' })
+}
+
 type DeviceClaim =
   | { status: 'checking' }
   | { status: 'owner'; claimedAt: string | null }
@@ -251,6 +266,14 @@ export default function TeamPage() {
         <p className="text-xs text-slate-400">Auto-refresh: every 15s{lastSyncedAt ? ` · Last synced ${lastSyncedAt}` : ''}</p>
       </header>
 
+      <details className="card text-sm text-slate-300">
+        <summary className="cursor-pointer font-semibold">One phone per team — how it works</summary>
+        <div className="mt-2 space-y-2">
+          <p>Only the phone that claimed this team can submit. Your claim is stored on this phone only — if you clear your browser, use private/incognito mode, or switch devices, you&apos;ll need to tap <strong>Take over this device</strong> to regain submission rights.</p>
+          <p>If a teammate&apos;s phone dies or they&apos;re out of range, tap <strong>Take over this device</strong> from a working phone to transfer the claim. The previous phone will be locked out until it takes over again.</p>
+        </div>
+      </details>
+
       <section className="card space-y-2">
         <p className="text-xs uppercase text-slate-400">Route progress</p>
         <ul className="space-y-1 text-sm">
@@ -307,7 +330,19 @@ export default function TeamPage() {
           ) : (
             <>
               <p className="text-sm text-slate-300">Upload your kickoff photo.</p>
-              <input type="file" accept="image/*" onChange={(e) => setKickoffFile(e.target.files?.[0] ?? null)} />
+              <input type="file" accept="image/*" onChange={async (e) => {
+                const picked = e.target.files?.[0] ?? null
+                if (!picked) { setKickoffFile(null); return }
+                try {
+                  setMessage('Converting photo…')
+                  const normalized = await normalizeImage(picked)
+                  setKickoffFile(normalized)
+                  setMessage('')
+                } catch {
+                  setKickoffFile(null)
+                  setMessage('Could not convert HEIC photo. On your iPhone, open Settings → Camera → Formats → Most Compatible and re-take the photo.')
+                }
+              }} />
             </>
           )}
           <button className="btn w-full bg-emerald-500 text-black" onClick={handleSubmitKickoff}>Submit kickoff</button>
@@ -343,9 +378,21 @@ export default function TeamPage() {
             </div>
           ) : null}
 
-          <input className="w-full rounded-lg p-3 text-black" placeholder="Optional note or QR/answer text" value={answer} onChange={(e) => setAnswer(e.target.value)} />
+          <input className="w-full rounded-lg p-3 text-black" placeholder="Optional note or answer text" value={answer} onChange={(e) => setAnswer(e.target.value)} />
           {activeCheckpoint.proof_type === 'photo' ? (
-            <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+            <input type="file" accept="image/*" onChange={async (e) => {
+              const picked = e.target.files?.[0] ?? null
+              if (!picked) { setFile(null); return }
+              try {
+                setMessage('Converting photo…')
+                const normalized = await normalizeImage(picked)
+                setFile(normalized)
+                setMessage('')
+              } catch {
+                setFile(null)
+                setMessage('Could not convert HEIC photo. On your iPhone, open Settings → Camera → Formats → Most Compatible and re-take the photo.')
+              }
+            }} />
           ) : null}
           <button className="btn w-full bg-emerald-500 text-black" onClick={handleSubmitCheckpoint}>Submit (auto-advances next clue)</button>
 

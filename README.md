@@ -13,7 +13,6 @@ Mobile-first scavenger hunt web app for the WorkMoney Park City corporate event,
 - Two bus starts (Upper Main / Lower Main) feeding into 6 routes (A–F)
 - Team-specific kickoff challenge (Step 0 gate); supports photo or text proofs
 - Proof-driven checkpoint progression: teams submit proof to auto-advance while host scoring runs in parallel
-- Hybrid unlock by QR or answer entry
 - Photo/text-only proofs (no video — built for spotty Park City cell data)
 - GPS warmer/colder hint on the active clue
 - One active phone per team (device claim with takeover)
