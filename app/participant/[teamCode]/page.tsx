@@ -266,6 +266,14 @@ export default function TeamPage() {
         <p className="text-xs text-slate-400">Auto-refresh: every 15s{lastSyncedAt ? ` · Last synced ${lastSyncedAt}` : ''}</p>
       </header>
 
+      <details className="card text-sm text-slate-300">
+        <summary className="cursor-pointer font-semibold">One phone per team — how it works</summary>
+        <div className="mt-2 space-y-2">
+          <p>Only the phone that claimed this team can submit. Your claim is stored on this phone only — if you clear your browser, use private/incognito mode, or switch devices, you&apos;ll need to tap <strong>Take over this device</strong> to regain submission rights.</p>
+          <p>If a teammate&apos;s phone dies or they&apos;re out of range, tap <strong>Take over this device</strong> from a working phone to transfer the claim. The previous phone will be locked out until it takes over again.</p>
+        </div>
+      </details>
+
       <section className="card space-y-2">
         <p className="text-xs uppercase text-slate-400">Route progress</p>
         <ul className="space-y-1 text-sm">
