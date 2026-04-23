@@ -529,7 +529,6 @@ async function run() {
         task_text: stop.participantTaskTextPreSolve,
         unlock_answer: stop.answerText,
         answer_text: stop.answerText,
-        unlock_qr: `QR-${code}-${index + 1}`,
         latitude: stop.lat,
         longitude: stop.lng,
         enable_gps: true,

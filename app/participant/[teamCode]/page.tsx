@@ -370,7 +370,7 @@ export default function TeamPage() {
             </div>
           ) : null}
 
-          <input className="w-full rounded-lg p-3 text-black" placeholder="Optional note or QR/answer text" value={answer} onChange={(e) => setAnswer(e.target.value)} />
+          <input className="w-full rounded-lg p-3 text-black" placeholder="Optional note or answer text" value={answer} onChange={(e) => setAnswer(e.target.value)} />
           {activeCheckpoint.proof_type === 'photo' ? (
             <input type="file" accept="image/*" onChange={async (e) => {
               const picked = e.target.files?.[0] ?? null
