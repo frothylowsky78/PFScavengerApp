@@ -27,6 +27,16 @@ async function verify(progressId: string, approved: boolean, submissionType: 'ki
   const supabase = getSupabaseServer()
 
   if (submissionType === 'kickoff') {
+    const { data: current } = await supabase
+      .from('kickoff_progress')
+      .select('status')
+      .eq('id', progressId)
+      .single()
+    if (current?.status !== 'submitted') {
+      revalidatePath('/admin')
+      return
+    }
+
     await supabase
       .from('kickoff_progress')
       .update({ status: approved ? 'verified' : 'rejected', points_awarded: approved ? 10 : 0, completed_at: new Date().toISOString() })
@@ -36,15 +46,19 @@ async function verify(progressId: string, approved: boolean, submissionType: 'ki
     return
   }
 
-  let awarded = 0
-  if (approved) {
-    const { data: row } = await supabase
-      .from('team_progress')
-      .select('checkpoint_id, checkpoints(points)')
-      .eq('id', progressId)
-      .single()
-    awarded = (row?.checkpoints as { points?: number } | null)?.points ?? 10
+  const { data: currentRow } = await supabase
+    .from('team_progress')
+    .select('status, checkpoint_id, checkpoints(points)')
+    .eq('id', progressId)
+    .single()
+  if (currentRow?.status !== 'submitted') {
+    revalidatePath('/admin')
+    return
   }
+
+  const awarded = approved
+    ? (currentRow.checkpoints as { points?: number } | null)?.points ?? 10
+    : 0
 
   await supabase
     .from('team_progress')
