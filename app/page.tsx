@@ -25,6 +25,14 @@ export default function HomePage() {
         <p className="text-xs text-slate-400">Tip: Assign roles (navigator, clue reader, photographer, uploader) so your team moves faster.</p>
       </section>
 
+      <details className="card text-sm text-slate-300">
+        <summary className="cursor-pointer font-semibold">One phone per team — how it works</summary>
+        <div className="mt-2 space-y-2">
+          <p>Only the phone that claimed this team can submit. Your claim is stored on that phone only — if you clear your browser, use private/incognito mode, or switch devices, you&apos;ll need to tap <strong>Take over this device</strong> to regain submission rights.</p>
+          <p>If a teammate&apos;s phone dies or they&apos;re out of range, tap <strong>Take over this device</strong> from a working phone to transfer the claim. The previous phone will be locked out until it takes over again.</p>
+        </div>
+      </details>
+
       <section className="card space-y-1">
         <p className="text-xs uppercase text-slate-400">Need help?</p>
         <p className="text-sm text-slate-200"><strong>Carl Moczydlowsky</strong></p>
