@@ -234,7 +234,19 @@ export default async function AdminPage({
             <p><strong>{s.team_name}</strong> · {s.checkpoint_title} <span className="text-xs uppercase text-slate-400">({s.submission_type})</span></p>
             <p className="text-sm">Submitted note: {s.answer_text || '—'}</p>
             <p className="text-sm text-amber-200">Host check: {s.host_verification_task_text || 'Verify against checkpoint criteria.'}</p>
-            <a href={s.proof_url || '#'} target="_blank" className="text-blue-300">Open proof</a>
+            {s.proof_url ? (
+              <a href={s.proof_url} target="_blank" rel="noopener noreferrer" className="block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={s.proof_url}
+                  alt={`${s.team_name} · ${s.checkpoint_title} proof`}
+                  className="max-h-48 rounded-lg border border-slate-700 object-contain bg-slate-900"
+                  loading="lazy"
+                />
+              </a>
+            ) : (
+              <p className="text-xs text-slate-400">No photo proof — text-only submission.</p>
+            )}
             <div className="flex gap-2">
               <form action={verify.bind(null, s.progress_id, true, s.submission_type)}><button className="btn bg-emerald-600">Approve</button></form>
               <form action={verify.bind(null, s.progress_id, false, s.submission_type)}><button className="btn bg-rose-600">Reject</button></form>
