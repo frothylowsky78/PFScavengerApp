@@ -1,0 +1,10 @@
+update teams set code='eagles',   name='Eagles',   color_hex='#004C54' where code='pink';
+update teams set code='steelers', name='Steelers', color_hex='#FFB612' where code='red';
+update teams set code='packers',  name='Packers',  color_hex='#203731' where code='yellow';
+update teams set code='chiefs',   name='Chiefs',   color_hex='#E31837' where code='purple';
+update teams set code='cowboys',  name='Cowboys',  color_hex='#003594' where code='gold';
+update teams set code='falcons',  name='Falcons',  color_hex='#A71930' where code='green';
+update teams set code='lions',    name='Lions',    color_hex='#0076B6' where code='silver';
+update teams set code='bills',    name='Bills',    color_hex='#00338D' where code='black';
+update teams set code='dolphins', name='Dolphins', color_hex='#008E97' where code='white';
+update teams set code='bears',    name='Bears',    color_hex='#0B162A' where code='blue';
