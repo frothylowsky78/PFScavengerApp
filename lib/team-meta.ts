@@ -14,16 +14,16 @@ export const BUS_STARTS: Record<BusStartCode, { code: BusStartCode; name: string
 }
 
 export const TEAM_META = [
-  { code: 'pink', name: 'Pink Team', routeCode: 'A', busStart: 'A', hex: '#ec4899', text: '#111827' },
-  { code: 'red', name: 'Red Team', routeCode: 'B', busStart: 'A', hex: '#ef4444', text: '#ffffff' },
-  { code: 'yellow', name: 'Yellow Team', routeCode: 'C', busStart: 'A', hex: '#eab308', text: '#111827' },
-  { code: 'purple', name: 'Purple Team', routeCode: 'D', busStart: 'A', hex: '#8b5cf6', text: '#ffffff' },
-  { code: 'gold', name: 'Gold Team', routeCode: 'D', busStart: 'A', hex: '#D4AF37', text: '#111827' },
-  { code: 'green', name: 'Green Team', routeCode: 'E', busStart: 'B', hex: '#22c55e', text: '#111827' },
-  { code: 'silver', name: 'Silver Team', routeCode: 'A', busStart: 'B', hex: '#9ca3af', text: '#111827' },
-  { code: 'black', name: 'Black Team', routeCode: 'B', busStart: 'B', hex: '#111827', text: '#ffffff' },
-  { code: 'white', name: 'White Team', routeCode: 'C', busStart: 'B', hex: '#e5e7eb', text: '#111827' },
-  { code: 'blue', name: 'Blue Team', routeCode: 'F', busStart: 'B', hex: '#2563eb', text: '#ffffff' }
+  { code: 'eagles', name: 'Eagles', routeCode: 'A', busStart: 'A', hex: '#004C54', text: '#ffffff' },
+  { code: 'steelers', name: 'Steelers', routeCode: 'B', busStart: 'A', hex: '#FFB612', text: '#101820' },
+  { code: 'packers', name: 'Packers', routeCode: 'C', busStart: 'A', hex: '#203731', text: '#FFB612' },
+  { code: 'chiefs', name: 'Chiefs', routeCode: 'D', busStart: 'A', hex: '#E31837', text: '#ffffff' },
+  { code: 'cowboys', name: 'Cowboys', routeCode: 'D', busStart: 'A', hex: '#003594', text: '#ffffff' },
+  { code: 'falcons', name: 'Falcons', routeCode: 'E', busStart: 'B', hex: '#A71930', text: '#ffffff' },
+  { code: 'lions', name: 'Lions', routeCode: 'A', busStart: 'B', hex: '#0076B6', text: '#ffffff' },
+  { code: 'bills', name: 'Bills', routeCode: 'B', busStart: 'B', hex: '#00338D', text: '#ffffff' },
+  { code: 'dolphins', name: 'Dolphins', routeCode: 'C', busStart: 'B', hex: '#008E97', text: '#ffffff' },
+  { code: 'bears', name: 'Bears', routeCode: 'F', busStart: 'B', hex: '#0B162A', text: '#C83803' }
 ] as const
 
 export type TeamCode = (typeof TEAM_META)[number]['code']

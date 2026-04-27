@@ -22,29 +22,29 @@ export const busStarts = [
 ] as const
 
 export const kickoffChallenges: Record<string, string> = {
-  pink: 'Find skis or a snowboard (real or decorative) and take a team selfie.',
-  red: 'Ask a local for their favorite ski run and enter the answer in text.',
-  yellow: 'Find something gold or shiny in a storefront and photograph it.',
-  purple: 'Do a ski pose as a group and submit a photo.',
-  green: 'Find a pine tree or greenery and take a team photo.',
-  silver: 'Find something metallic or reflective and photograph it.',
-  black: 'Take a dramatic "film noir ski town" photo.',
-  white: 'Take a bright snow-style group selfie.',
-  blue: 'Find something blue on Main Street and photograph it.',
-  gold: 'Find something that shines or reflects light and take a team photo capturing that "golden moment."'
+  eagles: 'Find skis or a snowboard (real or decorative) and take a team selfie.',
+  steelers: 'Ask a local for their favorite ski run and enter the answer in text.',
+  packers: 'Find something gold or shiny in a storefront and photograph it.',
+  chiefs: 'Do a ski pose as a group and submit a photo.',
+  cowboys: 'Find something that shines or reflects light and take a team photo capturing that "golden moment."',
+  falcons: 'Find a pine tree or greenery and take a team photo.',
+  lions: 'Find something metallic or reflective and photograph it.',
+  bills: 'Take a dramatic "film noir ski town" photo.',
+  dolphins: 'Take a bright snow-style group selfie.',
+  bears: 'Find something blue on Main Street and photograph it.'
 }
 
 export const kickoffProofTypes: Record<string, 'photo' | 'text'> = {
-  pink: 'photo',
-  red: 'text',
-  yellow: 'photo',
-  purple: 'photo',
-  green: 'photo',
-  silver: 'photo',
-  black: 'photo',
-  white: 'photo',
-  blue: 'photo',
-  gold: 'photo'
+  eagles: 'photo',
+  steelers: 'text',
+  packers: 'photo',
+  chiefs: 'photo',
+  cowboys: 'photo',
+  falcons: 'photo',
+  lions: 'photo',
+  bills: 'photo',
+  dolphins: 'photo',
+  bears: 'photo'
 }
 
 export type SeedStop = {

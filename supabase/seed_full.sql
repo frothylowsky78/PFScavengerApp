@@ -45,16 +45,16 @@ set name = excluded.name,
 insert into teams (code, name, color_hex, route_id, kickoff_challenge, kickoff_proof_type, bus_start)
 select v.code, v.name, v.color_hex, r.id, v.kickoff_challenge, v.kickoff_proof_type, v.bus_start
 from (values
-  ('pink',   'Pink Team',   '#ec4899', 'A', 'Find skis or a snowboard (real or decorative) and take a team selfie.',                                                              'photo', 'A'),
-  ('red',    'Red Team',    '#ef4444', 'B', 'Ask a local for their favorite ski run and enter the answer in text.',                                                               'text',  'A'),
-  ('yellow', 'Yellow Team', '#eab308', 'C', 'Find something gold or shiny in a storefront and photograph it.',                                                                    'photo', 'A'),
-  ('purple', 'Purple Team', '#8b5cf6', 'D', 'Do a ski pose as a group and submit a photo.',                                                                                        'photo', 'A'),
-  ('gold',   'Gold Team',   '#D4AF37', 'D', 'Find something that shines or reflects light and take a team photo capturing that "golden moment."',                                  'photo', 'A'),
-  ('green',  'Green Team',  '#22c55e', 'E', 'Find a pine tree or greenery and take a team photo.',                                                                                 'photo', 'B'),
-  ('silver', 'Silver Team', '#9ca3af', 'A', 'Find something metallic or reflective and photograph it.',                                                                            'photo', 'B'),
-  ('black',  'Black Team',  '#111827', 'B', 'Take a dramatic "film noir ski town" photo.',                                                                                         'photo', 'B'),
-  ('white',  'White Team',  '#e5e7eb', 'C', 'Take a bright snow-style group selfie.',                                                                                              'photo', 'B'),
-  ('blue',   'Blue Team',   '#2563eb', 'F', 'Find something blue on Main Street and photograph it.',                                                                               'photo', 'B')
+  ('eagles',   'Eagles',   '#004C54', 'A', 'Find skis or a snowboard (real or decorative) and take a team selfie.',                                                              'photo', 'A'),
+  ('steelers', 'Steelers', '#FFB612', 'B', 'Ask a local for their favorite ski run and enter the answer in text.',                                                               'text',  'A'),
+  ('packers',  'Packers',  '#203731', 'C', 'Find something gold or shiny in a storefront and photograph it.',                                                                    'photo', 'A'),
+  ('chiefs',   'Chiefs',   '#E31837', 'D', 'Do a ski pose as a group and submit a photo.',                                                                                        'photo', 'A'),
+  ('cowboys',  'Cowboys',  '#003594', 'D', 'Find something that shines or reflects light and take a team photo capturing that "golden moment."',                                  'photo', 'A'),
+  ('falcons',  'Falcons',  '#A71930', 'E', 'Find a pine tree or greenery and take a team photo.',                                                                                 'photo', 'B'),
+  ('lions',    'Lions',    '#0076B6', 'A', 'Find something metallic or reflective and photograph it.',                                                                            'photo', 'B'),
+  ('bills',    'Bills',    '#00338D', 'B', 'Take a dramatic "film noir ski town" photo.',                                                                                         'photo', 'B'),
+  ('dolphins', 'Dolphins', '#008E97', 'C', 'Take a bright snow-style group selfie.',                                                                                              'photo', 'B'),
+  ('bears',    'Bears',    '#0B162A', 'F', 'Find something blue on Main Street and photograph it.',                                                                               'photo', 'B')
 ) as v(code, name, color_hex, route_code, kickoff_challenge, kickoff_proof_type, bus_start)
 join routes r on r.code = v.route_code
 on conflict (code) do update
