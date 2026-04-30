@@ -9,7 +9,7 @@ import { TEAM_META } from '@/lib/team-meta'
 type TeamMeta = (typeof TEAM_META)[number]
 const TEAM_BY_CODE = new Map<string, TeamMeta>(TEAM_META.map((t) => [t.code as string, t]))
 
-const HOST_ADMIN_PASSWORD = 'JCP1234!'
+const HOST_ADMIN_PASSWORD = 'JCP123!'
 const HOST_ADMIN_COOKIE = 'pf_host_admin_auth'
 
 type ReviewedProof = {
